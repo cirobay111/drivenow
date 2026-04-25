@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    background-color: #0D0D0D;
+    color: #F5F5F5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer utilities {
+  .shadow-gold  { box-shadow: 0 0 24px rgba(201,164,65,0.25); }
+  .shadow-hover { box-shadow: 0 8px 32px rgba(201,164,65,0.18); }
+  .shadow-card  { box-shadow: 0 4px 24px rgba(0,0,0,0.5); }
+  .text-gradient {
+    background: linear-gradient(135deg, #C9A441, #e8c96a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .btn-primary {
+    @apply bg-accent text-black px-6 py-3 rounded-xl font-bold shadow-gold
+    transition-all duration-150 ease-out
+    hover:brightness-110 hover:shadow-hover hover:-translate-y-0.5
+    active:translate-y-0 active:shadow-gold;
+  }
+  .btn-outline {
+    @apply border-2 border-accent text-accent px-6 py-3 rounded-xl font-semibold
+    transition-all duration-150 ease-out
+    hover:bg-accent hover:text-black hover:-translate-y-0.5 active:translate-y-0;
+  }
+  .card {
+    @apply bg-[#141414] rounded-2xl border border-[#2A2A2A]
+    transition-all duration-200 ease-out
+    hover:border-[#C9A441]/30 hover:shadow-hover;
+  }
+  .input-dark {
+    @apply w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white placeholder-gray-600
+    rounded-xl px-4 py-2.5 text-sm
+    focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent
+    transition-all duration-150;
+  }
+  .section-dark { @apply bg-[#0D0D0D]; }
+  .section-darker { @apply bg-[#080808]; }
+}
+
+/* ── Page transition ─────────────────────────────────────────────────────────── */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageEnter 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
+}
+
+/* ── Fade up (staggered) ─────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.fade-up-1 { animation-delay: 0.05s; }
+.fade-up-2 { animation-delay: 0.10s; }
+.fade-up-3 { animation-delay: 0.15s; }
+
+/* ── Gold shimmer skeleton ───────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 12px;
+}
+
+/* ── Misc ────────────────────────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+a, button { -webkit-tap-highlight-color: transparent; }
+img { transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #C9A441; border-radius: 3px; }
+
+/* Date input dark fix */
+input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) brightness(0.6); }

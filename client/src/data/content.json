@@ -1,0 +1,72 @@
+{
+  "hero": {
+    "badge": "Your Company · Your City · Est. 2020",
+    "title": "Find Your Perfect",
+    "titleHighlight": "Rental Car",
+    "titleSuffix": "Today",
+    "subtitle": "Choose from our fleet of quality vehicles. Transparent pricing, full insurance, and 24/7 support.",
+    "backgroundImage": "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1600",
+    "stats": [
+      { "value": "500+",  "label": "Happy Clients" },
+      { "value": "20+",   "label": "Vehicles"      },
+      { "value": "5+",    "label": "Years"         },
+      { "value": "24/7",  "label": "Support"       }
+    ]
+  },
+
+  "fleet": {
+    "badge": "Our Fleet",
+    "title": "Browse Our Cars",
+    "subtitle": "From budget-friendly to premium — find the right car for every trip."
+  },
+
+  "benefits": {
+    "badge": "Why Choose Us",
+    "title": "The Difference",
+    "items": [
+      { "icon": "💰", "title": "Affordable Prices",   "desc": "Best rates guaranteed with no hidden fees."       },
+      { "icon": "🛡️", "title": "Insurance Included", "desc": "Full coverage insurance on every rental."         },
+      { "icon": "🕐", "title": "24/7 Support",        "desc": "Our team is always available to assist you."     },
+      { "icon": "🚀", "title": "Fast Booking",        "desc": "Book your car in under 2 minutes online."        }
+    ]
+  },
+
+  "testimonials": {
+    "badge": "Reviews",
+    "title": "What Clients Say",
+    "items": [
+      {
+        "name": "James Wilson",
+        "role": "Business Traveler",
+        "text": "Seamless experience from booking to return. Great selection and unbeatable prices!",
+        "avatar": "JW"
+      },
+      {
+        "name": "Sarah Chen",
+        "role": "Vacation Traveler",
+        "text": "Amazing selection of cars. Found the perfect vehicle for our weekend getaway.",
+        "avatar": "SC"
+      },
+      {
+        "name": "Marco Rossi",
+        "role": "Car Enthusiast",
+        "text": "The experience was flawless from start to finish. Will definitely be back!",
+        "avatar": "MR"
+      }
+    ]
+  },
+
+  "contact": {
+    "badge": "Get In Touch",
+    "title": "Contact Us",
+    "subtitle": "We're here to help 24/7"
+  },
+
+  "booking": {
+    "guarantees": [
+      "Insurance included",
+      "Free cancellation (24h before)",
+      "24/7 roadside support"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "_seq": {
+    "users": 2,
+    "cars": 1,
+    "bookings": 1
+  },
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin",
+      "email": "admin@drivenow.com",
+      "password": "$2a$10$yaZrEFjCrz/HHDOnCDPQM.i8BHq3KjCBWP.U5kqZPdvF.rdIDhICO",
+      "role": "admin",
+      "created_at": "2026-03-11T19:44:01.459Z"
+    }
+  ],
+  "cars": [],
+  "bookings": []
+}
