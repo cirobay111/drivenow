@@ -91,6 +91,7 @@ const db = {
 
   getBookingStats: () => {
     const data = load();
+    const today = new Date().toISOString().split('T')[0];
     const statusMap = {};
     let totalRevenue = 0;
     data.bookings.forEach(b => {
@@ -99,7 +100,9 @@ const db = {
     });
     return {
       totalCars: data.cars.length,
+      availableCars: data.cars.filter(c => c.available).length,
       totalBookings: data.bookings.length,
+      newToday: data.bookings.filter(b => b.created_at?.startsWith(today)).length,
       totalRevenue,
       bookingsByStatus: Object.entries(statusMap).map(([status, total]) => ({ status, total: String(total) })),
     };

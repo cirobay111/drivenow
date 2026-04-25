@@ -35,6 +35,7 @@ export const bookingService = {
   getAll: () => api.get('/bookings'),
   getStats: () => api.get('/bookings/stats'),
   updateStatus: (id, status) => api.put(`/bookings/${id}/status`, { status }),
+  delete: (id) => api.delete(`/bookings/${id}`),
 };
 
 export const authService = {

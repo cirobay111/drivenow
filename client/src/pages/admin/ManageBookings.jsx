@@ -1,11 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import config from '../../config/config';
-import {
-  getAllReservations,
-  updateReservationStatus,
-  deleteReservation,
-} from '../../services/reservationStore';
+import { bookingService } from '../../services/api';
 
 const STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
 
@@ -17,19 +13,29 @@ const STATUS_STYLES = {
 };
 
 export default function ManageBookings() {
-  const [reservations, setReservations] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('');
   const [search, setSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const { currency } = config;
 
-  const load = () => setReservations(getAllReservations());
+  const load = async () => {
+    setIsLoading(true);
+    try {
+      const res = await bookingService.getAll();
+      setBookings(res.data.data || []);
+    } catch {
+      setBookings([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => { load(); }, []);
 
-  // Client-side filter + search
   const filtered = useMemo(() => {
-    let list = reservations;
+    let list = bookings;
     if (filterStatus) list = list.filter(r => r.status === filterStatus);
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -37,37 +43,43 @@ export default function ManageBookings() {
         r.customer_name?.toLowerCase().includes(q) ||
         r.customer_phone?.toLowerCase().includes(q) ||
         r.customer_email?.toLowerCase().includes(q) ||
-        r.car_brand?.toLowerCase().includes(q) ||
-        r.car_model?.toLowerCase().includes(q)
+        r.brand?.toLowerCase().includes(q) ||
+        r.model?.toLowerCase().includes(q)
       );
     }
     return list;
-  }, [reservations, filterStatus, search]);
+  }, [bookings, filterStatus, search]);
 
-  const handleStatusChange = (id, status) => {
-    updateReservationStatus(id, status);
-    load();
+  const handleStatusChange = async (id, status) => {
+    try {
+      await bookingService.updateStatus(id, status);
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
+    } catch {
+      alert('Failed to update status.');
+    }
   };
 
-  const handleDelete = (id) => {
-    deleteReservation(id);
-    setConfirmDelete(null);
-    load();
+  const handleDelete = async (id) => {
+    try {
+      await bookingService.delete(id);
+      setBookings(prev => prev.filter(b => b.id !== id));
+      setConfirmDelete(null);
+    } catch {
+      alert('Delete failed.');
+    }
   };
 
   return (
     <AdminLayout>
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Reservations</h1>
+          <h1 className="text-2xl font-bold text-white">Bookings</h1>
           <p className="text-gray-500 text-sm">
-            {filtered.length} of {reservations.length} reservation{reservations.length !== 1 ? 's' : ''}
+            {filtered.length} of {bookings.length} booking{bookings.length !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
 
-      {/* Search + Status filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">🔍</span>
@@ -95,25 +107,21 @@ export default function ManageBookings() {
         </div>
       </div>
 
-      {/* Table */}
-      {reservations.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => <div key={i} className="h-16 bg-[#1A1A1A] rounded-xl animate-pulse" />)}
+        </div>
+      ) : bookings.length === 0 ? (
         <div className="card p-16 text-center text-gray-500">
           <p className="text-5xl mb-4">📋</p>
-          <p className="text-lg font-medium text-gray-400">No reservations yet</p>
-          <p className="text-sm text-gray-600 mt-1">
-            They'll appear here when customers submit the booking form.
-          </p>
+          <p className="text-lg font-medium text-gray-400">No bookings yet</p>
+          <p className="text-sm text-gray-600 mt-1">They'll appear here when customers submit the booking form.</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="card p-12 text-center text-gray-500">
           <p className="text-4xl mb-3">🔍</p>
           <p className="text-gray-400">No results for your search / filter.</p>
-          <button
-            onClick={() => { setSearch(''); setFilterStatus(''); }}
-            className="btn-outline mt-4 text-sm"
-          >
-            Clear filters
-          </button>
+          <button onClick={() => { setSearch(''); setFilterStatus(''); }} className="btn-outline mt-4 text-sm">Clear filters</button>
         </div>
       ) : (
         <div className="card overflow-hidden">
@@ -122,119 +130,75 @@ export default function ManageBookings() {
               <thead className="bg-[#0A0A0A] border-b border-[#2A2A2A]">
                 <tr>
                   {['#', 'Customer', 'Car', 'Dates', 'Location', 'Total', 'Status', 'Actions'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                      {h}
-                    </th>
+                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1A1A1A]">
-                {filtered.map(r => (
-                  <tr key={r.id} className="hover:bg-[#111] transition-colors">
-                    {/* ID */}
-                    <td className="px-4 py-3 text-gray-600 font-mono text-xs">
-                      #{String(r.id).slice(-6)}
-                    </td>
-
-                    {/* Customer */}
-                    <td className="px-4 py-3">
-                      <p className="font-semibold text-white">{r.customer_name}</p>
-                      <p className="text-gray-500 text-xs">{r.customer_email}</p>
-                      <p className="text-gray-500 text-xs">{r.customer_phone}</p>
-                    </td>
-
-                    {/* Car */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        {r.car_image && (
-                          <img
-                            src={r.car_image}
-                            alt={r.car_model}
-                            className="w-10 h-10 rounded-lg object-cover shrink-0"
-                            onError={(e) => { e.target.style.display = 'none'; }}
-                          />
-                        )}
-                        <p className="font-medium text-white whitespace-nowrap">
-                          {r.car_brand} {r.car_model}
-                        </p>
-                      </div>
-                    </td>
-
-                    {/* Dates */}
-                    <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
-                      <p>📅 {r.pickup_date}</p>
-                      <p>📅 {r.return_date}</p>
-                      <p className="text-gray-600">{r.total_days} day{r.total_days !== 1 ? 's' : ''}</p>
-                    </td>
-
-                    {/* Location */}
-                    <td className="px-4 py-3 text-xs text-gray-500 max-w-[120px]">
-                      <span className="truncate block">{r.pickup_location}</span>
-                    </td>
-
-                    {/* Total */}
-                    <td className="px-4 py-3 font-bold text-accent whitespace-nowrap">
-                      {currency}{r.total_price?.toFixed(2)}
-                    </td>
-
-                    {/* Status badge */}
-                    <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_STYLES[r.status] || 'bg-[#1A1A1A] text-gray-500'}`}>
-                        {r.status}
-                      </span>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={r.status}
-                          onChange={e => handleStatusChange(r.id, e.target.value)}
-                          className="text-xs bg-[#0D0D0D] border border-[#2A2A2A] text-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-accent cursor-pointer"
-                        >
-                          {STATUSES.map(s => (
-                            <option key={s} value={s}>
-                              {s.charAt(0).toUpperCase() + s.slice(1)}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          onClick={() => setConfirmDelete(r.id)}
-                          className="text-gray-600 hover:text-red-400 transition-colors p-1 rounded"
-                          title="Delete reservation"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map(r => {
+                  const days = Math.ceil((new Date(r.return_date) - new Date(r.pickup_date)) / 86400000);
+                  return (
+                    <tr key={r.id} className="hover:bg-[#111] transition-colors">
+                      <td className="px-4 py-3 text-gray-600 font-mono text-xs">#{r.id}</td>
+                      <td className="px-4 py-3">
+                        <p className="font-semibold text-white">{r.customer_name}</p>
+                        <p className="text-gray-500 text-xs">{r.customer_email}</p>
+                        <p className="text-gray-500 text-xs">{r.customer_phone}</p>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          {r.image_url && (
+                            <img src={r.image_url} alt={r.model} className="w-10 h-10 rounded-lg object-cover shrink-0" onError={(e) => { e.target.style.display = 'none'; }} />
+                          )}
+                          <p className="font-medium text-white whitespace-nowrap">{r.brand} {r.model}</p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
+                        <p>📅 {r.pickup_date}</p>
+                        <p>📅 {r.return_date}</p>
+                        <p className="text-gray-600">{days} day{days !== 1 ? 's' : ''}</p>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-500 max-w-[120px]">
+                        <span className="truncate block">{r.pickup_location}</span>
+                      </td>
+                      <td className="px-4 py-3 font-bold text-accent whitespace-nowrap">
+                        {currency}{parseFloat(r.total_price).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_STYLES[r.status] || 'bg-[#1A1A1A] text-gray-500'}`}>
+                          {r.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={r.status}
+                            onChange={e => handleStatusChange(r.id, e.target.value)}
+                            className="text-xs bg-[#0D0D0D] border border-[#2A2A2A] text-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-accent cursor-pointer"
+                          >
+                            {STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+                          </select>
+                          <button onClick={() => setConfirmDelete(r.id)} className="text-gray-600 hover:text-red-400 transition-colors p-1 rounded" title="Delete booking">🗑️</button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </div>
       )}
 
-      {/* Delete confirmation modal */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
           <div className="card p-6 max-w-sm w-full text-center">
             <p className="text-3xl mb-3">🗑️</p>
-            <h3 className="text-lg font-bold text-white mb-2">Delete Reservation?</h3>
+            <h3 className="text-lg font-bold text-white mb-2">Delete Booking?</h3>
             <p className="text-gray-500 text-sm mb-6">This action cannot be undone.</p>
             <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmDelete(null)}
-                className="flex-1 btn-outline text-sm py-2"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(confirmDelete)}
-                className="flex-1 bg-red-700 hover:bg-red-600 text-white rounded-xl text-sm py-2 font-semibold transition-colors"
-              >
-                Delete
-              </button>
+              <button onClick={() => setConfirmDelete(null)} className="flex-1 btn-outline text-sm py-2">Cancel</button>
+              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 bg-red-700 hover:bg-red-600 text-white rounded-xl text-sm py-2 font-semibold transition-colors">Delete</button>
             </div>
           </div>
         </div>

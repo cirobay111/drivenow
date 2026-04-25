@@ -1,15 +1,14 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import config from '../config/config';
+import { authService } from '../services/api';
 
-// Edit admin credentials in src/config/config.js → admin.email / admin.password
 const AuthContext = createContext(null);
 const SESSION_KEY = 'admin_session';
+const TOKEN_KEY = 'token';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Restore session from localStorage on page load
   useEffect(() => {
     try {
       const saved = localStorage.getItem(SESSION_KEY);
@@ -18,17 +17,17 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = (email, password) => {
-    if (email === config.admin.email && password === config.admin.password) {
-      const adminUser = { name: 'Admin', email };
-      localStorage.setItem(SESSION_KEY, JSON.stringify(adminUser));
-      setUser(adminUser);
-      return adminUser;
-    }
-    throw new Error('Invalid email or password.');
+  const login = async (email, password) => {
+    const res = await authService.login({ email, password });
+    const { token, user: userData } = res.data.data;
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(userData));
+    setUser(userData);
+    return userData;
   };
 
   const logout = () => {
+    localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(SESSION_KEY);
     setUser(null);
   };

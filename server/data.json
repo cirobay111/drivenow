@@ -1,7 +1,7 @@
 {
   "_seq": {
     "users": 2,
-    "cars": 1,
+    "cars": 15,
     "bookings": 1
   },
   "users": [
@@ -14,6 +14,189 @@
       "created_at": "2026-03-11T19:44:01.459Z"
     }
   ],
-  "cars": [],
+  "cars": [
+    {
+      "id": 1,
+      "brand": "BMW",
+      "model": "M4 Competition",
+      "year": 2023,
+      "price_per_day": 150,
+      "fuel_type": "Gasoline",
+      "seats": 4,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800",
+      "description": "The ultimate driving machine. Powerful, elegant, and thrilling.",
+      "available": true
+    },
+    {
+      "id": 2,
+      "brand": "Mercedes-Benz",
+      "model": "C-Class AMG",
+      "year": 2023,
+      "price_per_day": 140,
+      "fuel_type": "Gasoline",
+      "seats": 5,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800",
+      "description": "Luxury and performance in perfect harmony.",
+      "available": true
+    },
+    {
+      "id": 3,
+      "brand": "Audi",
+      "model": "A6 Quattro",
+      "year": 2022,
+      "price_per_day": 130,
+      "fuel_type": "Gasoline",
+      "seats": 5,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800",
+      "description": "Refined performance with quattro all-wheel drive.",
+      "available": true
+    },
+    {
+      "id": 4,
+      "brand": "Porsche",
+      "model": "Cayenne",
+      "year": 2023,
+      "price_per_day": 200,
+      "fuel_type": "Gasoline",
+      "seats": 5,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800",
+      "description": "The SUV that performs like a sports car.",
+      "available": true
+    },
+    {
+      "id": 5,
+      "brand": "Tesla",
+      "model": "Model S",
+      "year": 2023,
+      "price_per_day": 160,
+      "fuel_type": "Electric",
+      "seats": 5,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800",
+      "description": "The future of driving. Zero emissions, pure performance.",
+      "available": true
+    },
+    {
+      "id": 6,
+      "brand": "Range Rover",
+      "model": "Sport HSE",
+      "year": 2022,
+      "price_per_day": 180,
+      "fuel_type": "Diesel",
+      "seats": 5,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800",
+      "description": "Luxury SUV built for any terrain.",
+      "available": true
+    },
+    {
+      "id": 7,
+      "brand": "Lamborghini",
+      "model": "Huracán",
+      "year": 2022,
+      "price_per_day": 500,
+      "fuel_type": "Gasoline",
+      "seats": 2,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800",
+      "description": "Extreme performance. Pure Italian passion.",
+      "available": true
+    },
+    {
+      "id": 8,
+      "brand": "Ferrari",
+      "model": "488 Spider",
+      "year": 2022,
+      "price_per_day": 600,
+      "fuel_type": "Gasoline",
+      "seats": 2,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=800",
+      "description": "Open-top thrills from the prancing horse.",
+      "available": true
+    },
+    {
+      "id": 9,
+      "brand": "Porsche",
+      "model": "911 Carrera S",
+      "year": 2023,
+      "price_per_day": 320,
+      "fuel_type": "Gasoline",
+      "seats": 4,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=800",
+      "description": "The icon. Rear-engine thrill with decades of motorsport DNA.",
+      "available": true
+    },
+    {
+      "id": 10,
+      "brand": "Porsche",
+      "model": "Panamera 4S",
+      "year": 2022,
+      "price_per_day": 260,
+      "fuel_type": "Gasoline",
+      "seats": 5,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?w=800",
+      "description": "Luxury gran turismo with sports car performance.",
+      "available": true
+    },
+    {
+      "id": 11,
+      "brand": "Mercedes-Benz",
+      "model": "W124 Classic",
+      "year": 1995,
+      "price_per_day": 80,
+      "fuel_type": "Gasoline",
+      "seats": 5,
+      "transmission": "Manual",
+      "image_url": "https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=800",
+      "description": "The OG Mercedes. Timeless elegance and bulletproof reliability.",
+      "available": true
+    },
+    {
+      "id": 12,
+      "brand": "Renault",
+      "model": "Clio 5",
+      "year": 2022,
+      "price_per_day": 30,
+      "fuel_type": "Gasoline",
+      "seats": 5,
+      "transmission": "Manual",
+      "image_url": "https://images.unsplash.com/photo-1609861534396-c43df32e0c2d?w=800",
+      "description": "Compact and agile. Perfect for navigating the medina and city streets.",
+      "available": true
+    },
+    {
+      "id": 13,
+      "brand": "Peugeot",
+      "model": "308 GT",
+      "year": 2023,
+      "price_per_day": 45,
+      "fuel_type": "Diesel",
+      "seats": 5,
+      "transmission": "Automatic",
+      "image_url": "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800",
+      "description": "French style meets everyday comfort. Smooth and fuel-efficient.",
+      "available": true
+    },
+    {
+      "id": 14,
+      "brand": "Dacia",
+      "model": "Logan (Tasia)",
+      "year": 2023,
+      "price_per_day": 20,
+      "fuel_type": "Gasoline",
+      "seats": 5,
+      "transmission": "Manual",
+      "image_url": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800",
+      "description": "The iconic Tasia. Practical, reliable, and the most popular car in Morocco.",
+      "available": true
+    }
+  ],
   "bookings": []
 }

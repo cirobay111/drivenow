@@ -1,21 +1,27 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import CarCard from '../components/CarCard';
 import config from '../config/config';
-// Edit cars here → src/data/cars.json
-import allCars from '../data/cars.json';
+import { carService } from '../services/api';
 
 export default function Cars() {
+  const [allCars, setAllCars] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState({
     brand: '', fuel_type: '', transmission: '', seats: '', min_price: '', max_price: '',
   });
 
-  // Derive filter options dynamically from the cars data
-  const brands       = useMemo(() => [...new Set(allCars.map(c => c.brand))].sort(), []);
-  const fuelTypes    = useMemo(() => [...new Set(allCars.map(c => c.fuel_type))].sort(), []);
-  const transmissions = useMemo(() => [...new Set(allCars.map(c => c.transmission))].sort(), []);
-  const seatOptions  = useMemo(() => [...new Set(allCars.map(c => c.seats))].sort((a, b) => a - b), []);
+  useEffect(() => {
+    carService.getAll()
+      .then(res => setAllCars(res.data.data || []))
+      .catch(() => setAllCars([]))
+      .finally(() => setIsLoading(false));
+  }, []);
 
-  // Client-side filtering — no backend needed
+  const brands        = useMemo(() => [...new Set(allCars.map(c => c.brand))].sort(), [allCars]);
+  const fuelTypes     = useMemo(() => [...new Set(allCars.map(c => c.fuel_type))].sort(), [allCars]);
+  const transmissions = useMemo(() => [...new Set(allCars.map(c => c.transmission))].sort(), [allCars]);
+  const seatOptions   = useMemo(() => [...new Set(allCars.map(c => c.seats))].sort((a, b) => a - b), [allCars]);
+
   const cars = useMemo(() => {
     return allCars.filter(car => {
       if (filters.brand        && car.brand        !== filters.brand)                     return false;
@@ -42,7 +48,7 @@ export default function Cars() {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-accent font-semibold text-sm tracking-[0.3em] uppercase mb-2">Our Fleet</p>
           <h1 className="text-4xl font-bold text-white">Browse Our Cars</h1>
-          <p className="text-gray-500 mt-2">{allCars.length} vehicles available</p>
+          <p className="text-gray-500 mt-2">{isLoading ? '...' : `${allCars.length} vehicles available`}</p>
         </div>
       </div>
 
@@ -118,7 +124,11 @@ export default function Cars() {
               {cars.length} car{cars.length !== 1 ? 's' : ''} found
             </p>
 
-            {cars.length === 0 ? (
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => <div key={i} className="h-64 bg-[#1A1A1A] rounded-2xl animate-pulse" />)}
+              </div>
+            ) : cars.length === 0 ? (
               <div className="text-center py-20 text-gray-600">
                 <p className="text-5xl mb-4">🚗</p>
                 <p className="text-lg font-medium text-gray-400">No cars match your filters</p>

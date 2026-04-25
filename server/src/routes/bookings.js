@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { createBooking, getBookings, updateBookingStatus, getStats } = require('../controllers/bookingController');
+const { createBooking, getBookings, updateBookingStatus, getStats, deleteBooking } = require('../controllers/bookingController');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 const { publicLimiter, authLimiter } = require('../middleware/rateLimiter');
 
@@ -20,5 +20,6 @@ router.post('/', publicLimiter, bookingValidation, createBooking);
 router.get('/', authenticate, requireAdmin, authLimiter, getBookings);
 router.get('/stats', authenticate, requireAdmin, authLimiter, getStats);
 router.put('/:id/status', authenticate, requireAdmin, authLimiter, updateBookingStatus);
+router.delete('/:id', authenticate, requireAdmin, authLimiter, deleteBooking);
 
 module.exports = router;

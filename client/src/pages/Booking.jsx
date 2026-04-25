@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import config from '../config/config';
 import content from '../data/content.json';
-import allCars from '../data/cars.json';
-import { addReservation } from '../services/reservationStore';
+import { carService, bookingService } from '../services/api';
 
 export default function Booking() {
   const { id } = useParams();
-  const car = allCars.find(c => c.id === Number(id)) || null;
+  const [car, setCar] = useState(null);
+  const [isLoadingCar, setIsLoadingCar] = useState(true);
 
   const [form, setForm] = useState({
     customer_name: '', customer_email: '', customer_phone: '',
@@ -16,6 +16,13 @@ export default function Booking() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    carService.getById(id)
+      .then(res => setCar(res.data.data))
+      .catch(() => setCar(null))
+      .finally(() => setIsLoadingCar(false));
+  }, [id]);
 
   const { currency } = config;
   const { booking: bookingContent } = content;
@@ -27,30 +34,27 @@ export default function Booking() {
 
   const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (totalDays < 1) { setError('Return date must be after pickup date.'); return; }
     if (!car) { setError('Car not found.'); return; }
     setIsSubmitting(true);
     try {
-      // Save reservation to localStorage — visible in the admin dashboard
-      addReservation({
-        ...form,
-        car_id: car.id,
-        car_brand: car.brand,
-        car_model: car.model,
-        car_image: car.image_url,
-        total_days: totalDays,
-        total_price: parseFloat(totalPrice),
-      });
+      await bookingService.create({ ...form, car_id: car.id });
       setSuccess(true);
-    } catch {
-      setError('Booking failed. Please try again.');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Booking failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoadingCar) return (
+    <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
+      <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   if (!car) {
     return (

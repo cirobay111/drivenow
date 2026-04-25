@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import config from '../../config/config';
-import { carService } from '../../services/api';
-import { getAllReservations, getStats } from '../../services/reservationStore';
+import { bookingService } from '../../services/api';
 
 const STATUS_STYLES = {
   pending:   'bg-yellow-900/40 text-yellow-400 border border-yellow-800',
@@ -18,15 +17,17 @@ export default function Dashboard() {
   const { currency } = config;
 
   const load = useCallback(async () => {
-    let cars = [];
     try {
-      const res = await carService.getAll();
-      cars = res.data.data || [];
+      const [statsRes, bookingsRes] = await Promise.all([
+        bookingService.getStats(),
+        bookingService.getAll(),
+      ]);
+      setStats(statsRes.data.data);
+      setRecent((bookingsRes.data.data || []).slice(0, 5));
     } catch {
-      cars = [];
+      setStats({ totalBookings: 0, totalRevenue: 0, availableCars: 0, newToday: 0, bookingsByStatus: [] });
+      setRecent([]);
     }
-    setStats(getStats(cars));
-    setRecent(getAllReservations().slice(0, 5));
   }, []);
 
   useEffect(() => {
@@ -37,11 +38,16 @@ export default function Dashboard() {
 
   if (!stats) return null;
 
+  const byStatus = ['pending', 'confirmed', 'completed', 'cancelled'].map(s => ({
+    status: s,
+    count: parseInt(stats.bookingsByStatus?.find(b => b.status === s)?.total || 0),
+  }));
+
   const statCards = [
-    { icon: '📋', label: 'Total Reservations', value: stats.totalReservations, color: 'bg-purple-900/40 text-purple-400' },
-    { icon: '💰', label: 'Revenue',             value: `${currency}${stats.totalRevenue.toFixed(2)}`, color: 'bg-green-900/40 text-green-400' },
-    { icon: '🚗', label: 'Available Cars',       value: stats.availableCars,    color: 'bg-blue-900/40 text-blue-400'   },
-    { icon: '🆕', label: 'New Today',            value: stats.newToday,         color: 'bg-accent/20 text-accent'       },
+    { icon: '📋', label: 'Total Bookings',  value: stats.totalBookings,                        color: 'bg-purple-900/40 text-purple-400' },
+    { icon: '💰', label: 'Revenue',         value: `${currency}${stats.totalRevenue.toFixed(2)}`, color: 'bg-green-900/40 text-green-400'  },
+    { icon: '🚗', label: 'Available Cars',  value: stats.availableCars,                        color: 'bg-blue-900/40 text-blue-400'    },
+    { icon: '🆕', label: 'New Today',       value: stats.newToday,                             color: 'bg-accent/20 text-accent'        },
   ];
 
   return (
@@ -51,7 +57,6 @@ export default function Dashboard() {
         <p className="text-gray-500 text-sm">Welcome back! Here's your overview.</p>
       </div>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {statCards.map(({ icon, label, value, color }) => (
           <div key={label} className="card p-5 flex items-center gap-4">
@@ -65,20 +70,15 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Status breakdown */}
         <div className="card p-6">
-          <h2 className="font-bold text-white text-lg mb-4">Reservations by Status</h2>
-          {stats.totalReservations === 0 ? (
-            <p className="text-gray-600 text-sm">No reservations yet.</p>
+          <h2 className="font-bold text-white text-lg mb-4">Bookings by Status</h2>
+          {stats.totalBookings === 0 ? (
+            <p className="text-gray-600 text-sm">No bookings yet.</p>
           ) : (
             <div className="space-y-4">
-              {stats.byStatus.map(({ status, count }) => {
-                const pct = stats.totalReservations > 0
-                  ? Math.round((count / stats.totalReservations) * 100) : 0;
-                const barColor = {
-                  pending: 'bg-yellow-400', confirmed: 'bg-green-400',
-                  completed: 'bg-blue-400',  cancelled: 'bg-red-400',
-                }[status];
+              {byStatus.map(({ status, count }) => {
+                const pct = stats.totalBookings > 0 ? Math.round((count / stats.totalBookings) * 100) : 0;
+                const barColor = { pending: 'bg-yellow-400', confirmed: 'bg-green-400', completed: 'bg-blue-400', cancelled: 'bg-red-400' }[status];
                 return (
                   <div key={status}>
                     <div className="flex justify-between text-sm mb-1">
@@ -95,16 +95,15 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Recent reservations */}
         <div className="card p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-white text-lg">Recent Reservations</h2>
+            <h2 className="font-bold text-white text-lg">Recent Bookings</h2>
             <Link to="/admin/bookings" className="text-accent text-xs hover:underline">View all →</Link>
           </div>
           {recent.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-4xl mb-3">📋</p>
-              <p className="text-gray-500 text-sm">No reservations yet.</p>
+              <p className="text-gray-500 text-sm">No bookings yet.</p>
               <p className="text-gray-600 text-xs mt-1">They'll appear here when customers book cars.</p>
             </div>
           ) : (
@@ -113,7 +112,7 @@ export default function Dashboard() {
                 <div key={r.id} className="flex items-center justify-between py-2 border-b border-[#1A1A1A] last:border-0">
                   <div>
                     <p className="font-medium text-sm text-white">{r.customer_name}</p>
-                    <p className="text-xs text-gray-500">{r.car_brand} {r.car_model} · {r.pickup_date}</p>
+                    <p className="text-xs text-gray-500">{r.brand} {r.model} · {r.pickup_date}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-accent text-sm">{currency}{r.total_price}</p>

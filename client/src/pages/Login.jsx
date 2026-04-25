@@ -14,15 +14,15 @@ export default function Login() {
 
   const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     try {
-      login(form.email, form.password);
+      await login(form.email, form.password);
       navigate('/admin');
     } catch (err) {
-      setError(err.message || 'Login failed. Check your credentials.');
+      setError(err.response?.data?.error || err.message || 'Login failed. Check your credentials.');
     } finally {
       setIsLoading(false);
     }

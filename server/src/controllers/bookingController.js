@@ -62,4 +62,10 @@ const getStats = (req, res) => {
   }
 };
 
-module.exports = { createBooking, getBookings, updateBookingStatus, getStats };
+const deleteBooking = (req, res) => {
+  const removed = db.delete('bookings', req.params.id);
+  if (!removed) return res.status(404).json({ success: false, error: 'Booking not found' });
+  res.json({ success: true, data: { message: 'Booking deleted' }, error: null });
+};
+
+module.exports = { createBooking, getBookings, updateBookingStatus, getStats, deleteBooking };
