@@ -1,25 +1,10 @@
-import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import config from '../config/config';
-import { carService } from '../services/api';
+import { FALLBACK_IMAGE, getCarById } from '../services/carStore';
 
 export default function CarDetail() {
   const { id } = useParams();
-  const [car, setCar] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    carService.getById(id)
-      .then(res => setCar(res.data.data))
-      .catch(() => setCar(null))
-      .finally(() => setIsLoading(false));
-  }, [id]);
-
-  if (isLoading) return (
-    <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
-      <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  const car = getCarById(id);
 
   if (!car) {
     return (
@@ -34,13 +19,12 @@ export default function CarDetail() {
   }
 
   const { currency } = config;
-  const fallbackImage = 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800';
 
   const specs = [
-    { icon: '⛽', label: 'Fuel',         value: car.fuel_type },
-    { icon: '⚙️', label: 'Transmission', value: car.transmission },
+    { icon: '⛽', label: 'Fuel',         value: car.fuel_type           },
+    { icon: '⚙️', label: 'Transmission', value: car.transmission        },
     { icon: '👥', label: 'Seats',        value: `${car.seats} Passengers` },
-    { icon: '📅', label: 'Year',         value: car.year },
+    { icon: '📅', label: 'Year',         value: car.year                },
   ];
 
   return (
@@ -54,7 +38,7 @@ export default function CarDetail() {
             <span className="mx-2">/</span>
             <span className="text-white">{car.brand} {car.model}</span>
           </nav>
-          <h1 className="text-3xl md:text-4xl font-bold text-white">{car.brand} {car.model}</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-white">{car.brand} {car.model}</h1>
           <p className="text-gray-500 mt-1">{car.year} · {car.transmission} · {car.fuel_type}</p>
         </div>
       </div>
@@ -64,10 +48,10 @@ export default function CarDetail() {
           <div className="lg:col-span-2 space-y-6">
             <div className="card overflow-hidden">
               <img
-                src={car.image_url || fallbackImage}
+                src={car.image_url || FALLBACK_IMAGE}
                 alt={`${car.brand} ${car.model}`}
                 className="w-full h-72 md:h-96 object-cover"
-                onError={(e) => { e.target.src = fallbackImage; }}
+                onError={(e) => { e.target.src = FALLBACK_IMAGE; }}
               />
             </div>
 
@@ -92,6 +76,7 @@ export default function CarDetail() {
             )}
           </div>
 
+          {/* Pricing sidebar — currency from src/config/config.js */}
           <div className="space-y-4">
             <div className="card p-6 sticky top-20">
               <div className="flex items-center justify-between mb-4">

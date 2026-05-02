@@ -6,7 +6,9 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Poppins', 'Inter', sans-serif;
-    background-color: #0D0D0D;
+    background:
+      radial-gradient(circle at 50% -10%, rgba(201,164,65,0.08), transparent 32rem),
+      #0D0D0D;
     color: #F5F5F5;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -15,38 +17,80 @@
 
 @layer utilities {
   .shadow-gold  { box-shadow: 0 0 24px rgba(201,164,65,0.25); }
-  .shadow-hover { box-shadow: 0 8px 32px rgba(201,164,65,0.18); }
-  .shadow-card  { box-shadow: 0 4px 24px rgba(0,0,0,0.5); }
+  .shadow-hover { box-shadow: 0 12px 34px rgba(201,164,65,0.16); }
+  .shadow-card  { box-shadow: 0 18px 45px rgba(0,0,0,0.45); }
   .text-gradient {
     background: linear-gradient(135deg, #C9A441, #e8c96a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  .eyebrow {
+    @apply text-accent font-semibold text-xs tracking-[0.24em] uppercase;
+  }
+  .section-title {
+    @apply text-3xl md:text-5xl font-bold text-white tracking-normal;
+  }
+  .surface {
+    @apply bg-[#121212]/90 border border-white/10 rounded-lg shadow-card backdrop-blur;
+  }
   .btn-primary {
-    @apply bg-accent text-black px-6 py-3 rounded-xl font-bold shadow-gold
+    @apply bg-accent text-black px-6 py-3 rounded-lg font-bold shadow-gold
     transition-all duration-150 ease-out
-    hover:brightness-110 hover:shadow-hover hover:-translate-y-0.5
+    hover:brightness-110 hover:shadow-hover hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-accent/30
     active:translate-y-0 active:shadow-gold;
   }
   .btn-outline {
-    @apply border-2 border-accent text-accent px-6 py-3 rounded-xl font-semibold
+    @apply border border-accent/80 text-accent px-6 py-3 rounded-lg font-semibold
     transition-all duration-150 ease-out
-    hover:bg-accent hover:text-black hover:-translate-y-0.5 active:translate-y-0;
+    hover:bg-accent hover:text-black hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-accent/25 active:translate-y-0;
   }
   .card {
-    @apply bg-[#141414] rounded-2xl border border-[#2A2A2A]
+    @apply bg-[#141414] rounded-lg border border-[#2A2A2A] shadow-card
     transition-all duration-200 ease-out
-    hover:border-[#C9A441]/30 hover:shadow-hover;
+    hover:border-[#C9A441]/35 hover:shadow-hover;
   }
   .input-dark {
     @apply w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white placeholder-gray-600
-    rounded-xl px-4 py-2.5 text-sm
+    rounded-lg px-4 py-2.5 text-sm
     focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent
     transition-all duration-150;
   }
   .section-dark { @apply bg-[#0D0D0D]; }
   .section-darker { @apply bg-[#080808]; }
+  .gold-divider {
+    background: linear-gradient(90deg, transparent, rgba(201,164,65,0.65), transparent);
+    height: 1px;
+  }
+  .noise-overlay {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to bottom, black, transparent 70%);
+  }
+  .hero-reserve-dock {
+    background:
+      linear-gradient(135deg, rgba(18,18,18,0.92), rgba(8,8,8,0.84)),
+      linear-gradient(90deg, rgba(201,164,65,0.14), transparent 55%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-top-color: rgba(201,164,65,0.34);
+    border-radius: 14px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.58), 0 0 40px rgba(201,164,65,0.12);
+    backdrop-filter: blur(18px);
+  }
+  .hero-orbit {
+    background: conic-gradient(from 210deg, transparent, rgba(201,164,65,0.55), transparent 34%);
+    filter: blur(0.2px);
+  }
+  .fleet-card {
+    @apply bg-[#111] border border-white/10 rounded-lg overflow-hidden shadow-card transition-all duration-200;
+  }
+  .fleet-card:hover {
+    border-color: rgba(201,164,65,0.42);
+    transform: translateY(-4px);
+    box-shadow: 0 22px 52px rgba(0,0,0,0.5), 0 0 34px rgba(201,164,65,0.12);
+  }
 }
 
 /* ── Page transition ─────────────────────────────────────────────────────────── */
