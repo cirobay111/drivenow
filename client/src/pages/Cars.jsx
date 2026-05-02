@@ -1,29 +1,47 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import CarCard from '../components/CarCard';
 import config from '../config/config';
-import { carService } from '../services/api';
+import { getAllCars } from '../services/carStore';
 
 export default function Cars() {
-  const [allCars, setAllCars] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const [allCars, setAllCars] = useState(() => getAllCars());
+  const [query, setQuery] = useState(searchParams.get('q') || '');
   const [filters, setFilters] = useState({
     brand: '', fuel_type: '', transmission: '', seats: '', min_price: '', max_price: '',
   });
 
   useEffect(() => {
-    carService.getAll()
-      .then(res => setAllCars(res.data.data || []))
-      .catch(() => setAllCars([]))
-      .finally(() => setIsLoading(false));
+    const syncCars = () => setAllCars(getAllCars());
+    window.addEventListener('focus', syncCars);
+    window.addEventListener('drivenow-cars-updated', syncCars);
+    window.addEventListener('storage', syncCars);
+    return () => {
+      window.removeEventListener('focus', syncCars);
+      window.removeEventListener('drivenow-cars-updated', syncCars);
+      window.removeEventListener('storage', syncCars);
+    };
   }, []);
 
-  const brands        = useMemo(() => [...new Set(allCars.map(c => c.brand))].sort(), [allCars]);
-  const fuelTypes     = useMemo(() => [...new Set(allCars.map(c => c.fuel_type))].sort(), [allCars]);
-  const transmissions = useMemo(() => [...new Set(allCars.map(c => c.transmission))].sort(), [allCars]);
-  const seatOptions   = useMemo(() => [...new Set(allCars.map(c => c.seats))].sort((a, b) => a - b), [allCars]);
+  useEffect(() => {
+    setQuery(searchParams.get('q') || '');
+  }, [searchParams]);
 
+  // Derive filter options dynamically from the cars data
+  const brands       = useMemo(() => [...new Set(allCars.map(c => c.brand))].sort(), [allCars]);
+  const fuelTypes    = useMemo(() => [...new Set(allCars.map(c => c.fuel_type))].sort(), [allCars]);
+  const transmissions = useMemo(() => [...new Set(allCars.map(c => c.transmission))].sort(), [allCars]);
+  const seatOptions  = useMemo(() => [...new Set(allCars.map(c => c.seats))].sort((a, b) => a - b), [allCars]);
+
+  // Client-side filtering — no backend needed
   const cars = useMemo(() => {
     return allCars.filter(car => {
+      if (query.trim()) {
+        const q = query.toLowerCase();
+        const haystack = `${car.brand} ${car.model} ${car.year} ${car.fuel_type} ${car.transmission}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
       if (filters.brand        && car.brand        !== filters.brand)                     return false;
       if (filters.fuel_type    && car.fuel_type    !== filters.fuel_type)                 return false;
       if (filters.transmission && car.transmission !== filters.transmission)              return false;
@@ -32,7 +50,7 @@ export default function Cars() {
       if (filters.max_price    && car.price_per_day > Number(filters.max_price))          return false;
       return true;
     });
-  }, [filters]);
+  }, [allCars, filters, query]);
 
   const handleFilter = (key, value) =>
     setFilters(p => ({ ...p, [key]: p[key] === value ? '' : value }));
@@ -41,22 +59,28 @@ export default function Cars() {
     setFilters({ brand: '', fuel_type: '', transmission: '', seats: '', min_price: '', max_price: '' });
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  const clearAll = () => {
+    setQuery('');
+    handleReset();
+  };
 
   return (
     <div className="min-h-screen bg-[#0D0D0D]">
-      <div className="bg-[#080808] border-b border-[#2A2A2A] py-16">
+      <div className="relative bg-[#080808] border-b border-[#2A2A2A] py-10 overflow-hidden">
+        <div className="absolute inset-0 noise-overlay opacity-60" />
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-accent font-semibold text-sm tracking-[0.3em] uppercase mb-2">Our Fleet</p>
-          <h1 className="text-4xl font-bold text-white">Browse Our Cars</h1>
-          <p className="text-gray-500 mt-2">{isLoading ? '...' : `${allCars.length} vehicles available`}</p>
+          <p className="text-accent font-semibold text-xs tracking-[0.24em] uppercase mb-2">Our Fleet</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-white">Browse Our Cars</h1>
+          <p className="text-gray-500 mt-3">{allCars.length} vehicles available for every kind of drive</p>
+          <div className="gold-divider max-w-sm mx-auto mt-8" />
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* Filters sidebar */}
-          <aside className="w-full lg:w-64 shrink-0">
+          <aside className="hidden lg:block w-full lg:w-64 shrink-0">
             <div className="card p-5 sticky top-20">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-bold text-white text-lg">
@@ -120,19 +144,65 @@ export default function Cars() {
 
           {/* Cars grid */}
           <div className="flex-1">
-            <p className="text-gray-600 text-sm mb-4">
-              {cars.length} car{cars.length !== 1 ? 's' : ''} found
-            </p>
-
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => <div key={i} className="h-64 bg-[#1A1A1A] rounded-2xl animate-pulse" />)}
+            <details className="lg:hidden surface p-4 mb-5">
+              <summary className="cursor-pointer list-none flex items-center justify-between">
+                <span className="font-bold text-white">
+                  Filters
+                  {activeFilterCount > 0 && (
+                    <span className="ml-2 bg-accent text-black text-xs font-bold px-2 py-0.5 rounded-full">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </span>
+                <span className="text-accent text-sm">Refine</span>
+              </summary>
+              <div className="pt-5 mt-4 border-t border-white/10">
+                {activeFilterCount > 0 && (
+                  <button onClick={handleReset} className="text-accent text-sm hover:underline mb-4">Reset filters</button>
+                )}
+                <FilterGroup title="Brand">
+                  {brands.map(b => (
+                    <FilterChip key={b} label={b} active={filters.brand === b} onClick={() => handleFilter('brand', b)} />
+                  ))}
+                </FilterGroup>
+                <FilterGroup title="Fuel Type">
+                  {fuelTypes.map(f => (
+                    <FilterChip key={f} label={f} active={filters.fuel_type === f} onClick={() => handleFilter('fuel_type', f)} />
+                  ))}
+                </FilterGroup>
+                <FilterGroup title="Transmission">
+                  {transmissions.map(t => (
+                    <FilterChip key={t} label={t} active={filters.transmission === t} onClick={() => handleFilter('transmission', t)} />
+                  ))}
+                </FilterGroup>
+                <FilterGroup title="Seats">
+                  {seatOptions.map(s => (
+                    <FilterChip key={s} label={`${s} Seats`} active={filters.seats === String(s)} onClick={() => handleFilter('seats', String(s))} />
+                  ))}
+                </FilterGroup>
               </div>
-            ) : cars.length === 0 ? (
+            </details>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <p className="text-gray-500 text-sm">
+                {cars.length} car{cars.length !== 1 ? 's' : ''} found
+              </p>
+              <div className="relative w-full sm:w-80">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">🔍</span>
+                <input
+                  type="search"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder="Search brand, model, fuel..."
+                  className="input-dark pl-9"
+                />
+              </div>
+            </div>
+
+            {cars.length === 0 ? (
               <div className="text-center py-20 text-gray-600">
                 <p className="text-5xl mb-4">🚗</p>
                 <p className="text-lg font-medium text-gray-400">No cars match your filters</p>
-                <button onClick={handleReset} className="btn-outline mt-4 text-sm">Clear Filters</button>
+                <button onClick={clearAll} className="btn-outline mt-4 text-sm">Clear Filters</button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

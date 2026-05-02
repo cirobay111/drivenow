@@ -1,20 +1,32 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SearchBar from '../components/SearchBar';
 import CarCard from '../components/CarCard';
 import config from '../config/config';
 import content from '../data/content.json';
-// Edit cars here → src/data/cars.json
-import allCars from '../data/cars.json';
+import { getAllCars } from '../services/carStore';
 
 const INITIAL_COUNT = 3;
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [allCars, setAllCars] = useState(() => getAllCars());
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
 
   const { hero, fleet, benefits, testimonials, contact: contactContent } = content;
+
+  useEffect(() => {
+    const syncCars = () => setAllCars(getAllCars());
+    window.addEventListener('focus', syncCars);
+    window.addEventListener('drivenow-cars-updated', syncCars);
+    window.addEventListener('storage', syncCars);
+    return () => {
+      window.removeEventListener('focus', syncCars);
+      window.removeEventListener('drivenow-cars-updated', syncCars);
+      window.removeEventListener('storage', syncCars);
+    };
+  }, []);
 
   // Filter only available cars; apply search if the user typed in the SearchBar
   const cars = useMemo(() => {
@@ -30,6 +42,10 @@ export default function Home() {
   }, [searchQuery]);
 
   const visibleCars = showAll ? cars : cars.slice(0, INITIAL_COUNT);
+  const heroCar = useMemo(
+    () => [...allCars].sort((a, b) => b.price_per_day - a.price_per_day)[0],
+    [allCars]
+  );
 
   const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
   const handleSubmit = (e) => { e.preventDefault(); setSubmitted(true); };
@@ -37,46 +53,84 @@ export default function Home() {
   return (
     <div>
       {/* ── Hero ── edit text in src/data/content.json */}
-      <section id="home" className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url('${hero.backgroundImage}')` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0D0D0D]/98 via-[#0D0D0D]/85 to-[#0D0D0D]/50" />
-        <div className="relative z-10 text-center px-4 w-full max-w-7xl mx-auto">
-          <p className="text-accent font-semibold text-sm tracking-[0.3em] uppercase mb-4">{hero.badge}</p>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
-            {hero.title}<br />
-            <span className="text-gradient">{hero.titleHighlight}</span>{' '}
-            {hero.titleSuffix}
-          </h1>
-          <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">{hero.subtitle}</p>
-          <div className="px-2">
-            <SearchBar onSearch={setSearchQuery} />
-          </div>
-          <div className="flex justify-center gap-8 mt-10">
-            {hero.stats.map(({ value, label }) => (
-              <div key={label} className="text-center">
-                <p className="text-2xl md:text-3xl font-bold text-accent">{value}</p>
-                <p className="text-xs md:text-sm text-gray-500">{label}</p>
+      <section id="home" className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-[#050505]">
+        <div className="absolute inset-0">
+          <img
+            src={heroCar?.image_url || hero.backgroundImage}
+            alt={heroCar ? `${heroCar.brand} ${heroCar.model}` : config.company.name}
+            className="h-full w-full object-cover object-center brightness-[0.92] contrast-[1.14] saturate-[1.08]"
+            onError={(e) => { e.currentTarget.src = hero.backgroundImage; }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/86 to-[#050505]/32" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-black/12 to-black/62" />
+          <div className="absolute inset-0 noise-overlay opacity-80" />
+        </div>
+
+        <div className="absolute -right-24 top-24 hidden h-[30rem] w-[30rem] rounded-full border border-accent/20 opacity-60 lg:block hero-orbit" />
+        <div className="absolute right-10 top-36 hidden h-44 w-44 rounded-full border border-white/10 lg:block" />
+
+        <div className="relative z-10 flex min-h-[calc(100vh-4rem)] flex-col justify-between px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto flex w-full max-w-7xl flex-1 items-center pt-5 md:pt-12">
+            <div className="max-w-4xl">
+              <div className="mb-5 flex flex-wrap items-center gap-3">
+                <span className="eyebrow rounded-full border border-accent/25 bg-accent/10 px-4 py-2">{hero.badge}</span>
+                {heroCar && (
+                  <span className="hidden rounded-full border border-white/10 bg-black/35 px-4 py-2 text-xs font-semibold text-gray-300 backdrop-blur sm:inline-flex">
+                    Featured today: {heroCar.brand} {heroCar.model}
+                  </span>
+                )}
               </div>
-            ))}
+
+              <h1 className="max-w-5xl text-5xl font-black leading-[0.9] text-[#FFF9EC] drop-shadow-[0_4px_30px_rgba(0,0,0,0.78)] sm:text-6xl md:text-7xl lg:text-8xl">
+                Drive the city<br />
+                in <span className="text-gradient">first-class</span> style.
+              </h1>
+
+              <p className="mt-6 max-w-2xl text-base leading-7 text-gray-200 md:text-xl md:leading-8">
+                {hero.subtitle}
+              </p>
+
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <button onClick={() => document.getElementById('cars')?.scrollIntoView({ behavior: 'smooth' })} className="btn-primary text-sm">
+                  Explore Fleet
+                </button>
+                <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="btn-outline bg-black/20 text-sm backdrop-blur">
+                  Speak to an Advisor
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mx-auto grid w-full max-w-7xl gap-4 pb-1 lg:grid-cols-[1fr_2fr] lg:items-end">
+            <div className="hidden grid-cols-2 gap-3 lg:grid">
+              {hero.stats.map(({ value, label }) => (
+                <div key={label} className="rounded-lg border border-white/10 bg-black/38 px-4 py-4 backdrop-blur-md">
+                  <p className="text-2xl font-bold text-accent md:text-3xl">{value}</p>
+                  <p className="mt-1 text-xs text-gray-500 md:text-sm">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <SearchBar onSearch={setSearchQuery} />
           </div>
         </div>
       </section>
 
-      {/* ── Fleet ── cars loaded from src/data/cars.json */}
+      {/* ── Fleet ── cars are seeded from src/data/cars.json and persisted locally */}
       <section id="cars" className="py-20 bg-[#080808]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-accent font-semibold text-sm tracking-[0.3em] uppercase">{fleet.badge}</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">{fleet.title}</h2>
-            <p className="text-gray-500 mt-3 max-w-xl mx-auto">{fleet.subtitle}</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <p className="eyebrow">{fleet.badge}</p>
+              <h2 className="section-title mt-2">{fleet.title}</h2>
+              <p className="text-gray-500 mt-3 max-w-xl">{fleet.subtitle}</p>
+            </div>
+            <div className="hidden md:block w-48 gold-divider" />
           </div>
 
           {cars.length === 0 ? (
-            <div className="text-center py-16 text-gray-600">
-              <p className="text-5xl mb-4">🚗</p>
+              <div className="text-center py-16 text-gray-600 surface">
+              <p className="text-5xl mb-4">No Results</p>
               <p className="text-lg font-medium text-gray-400">No cars match your search</p>
               <button onClick={() => setSearchQuery('')} className="btn-outline mt-4 text-sm">
                 Clear Search
@@ -103,14 +157,14 @@ export default function Home() {
       <section className="py-20 bg-[#0D0D0D]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-accent font-semibold text-sm tracking-[0.3em] uppercase">{benefits.badge}</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">{benefits.title}</h2>
+            <p className="eyebrow">{benefits.badge}</p>
+            <h2 className="section-title mt-2">{benefits.title}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {benefits.items.map(({ icon, title, desc }, i) => (
-              <div key={title} className="card p-6 text-center group fade-up"
+            {benefits.items.map(({ title, desc }, i) => (
+              <div key={title} className="surface p-6 group fade-up"
                 style={{ animationDelay: `${i * 0.08}s`, willChange: 'transform, opacity' }}>
-                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">{icon}</div>
+                <div className="text-accent text-sm font-bold mb-8">0{i + 1}</div>
                 <h3 className="font-bold text-white text-lg mb-2">{title}</h3>
                 <p className="text-gray-500 text-sm">{desc}</p>
               </div>
@@ -123,12 +177,12 @@ export default function Home() {
       <section className="py-20 bg-[#080808]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-accent font-semibold text-sm tracking-[0.3em] uppercase">{testimonials.badge}</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">{testimonials.title}</h2>
+            <p className="eyebrow">{testimonials.badge}</p>
+            <h2 className="section-title mt-2">{testimonials.title}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.items.map(({ name, role, text, avatar }, i) => (
-              <div key={name} className="card p-6 fade-up" style={{ animationDelay: `${i * 0.1}s` }}>
+              <div key={name} className="surface p-6 fade-up" style={{ animationDelay: `${i * 0.1}s` }}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-accent text-black rounded-full flex items-center justify-center font-bold text-sm">{avatar}</div>
                   <div>
@@ -136,7 +190,7 @@ export default function Home() {
                     <p className="text-xs text-gray-500">{role}</p>
                   </div>
                 </div>
-                <div className="text-accent text-lg mb-2">★★★★★</div>
+                <div className="text-accent text-sm mb-3 tracking-[0.18em]">★★★★★</div>
                 <p className="text-gray-400 text-sm leading-relaxed">"{text}"</p>
               </div>
             ))}
@@ -148,8 +202,8 @@ export default function Home() {
       <section id="contact" className="py-20 bg-[#0D0D0D]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-accent font-semibold text-sm tracking-[0.3em] uppercase">{contactContent.badge}</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">{contactContent.title}</h2>
+            <p className="eyebrow">{contactContent.badge}</p>
+            <h2 className="section-title mt-2">{contactContent.title}</h2>
             <p className="text-gray-500 mt-3">{contactContent.subtitle}</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -197,13 +251,20 @@ export default function Home() {
                 ))}
               </div>
               <div className="card overflow-hidden h-64">
-                <iframe
-                  title={`${config.company.name} Location`}
-                  src={config.maps.embedUrl}
-                  width="100%" height="100%"
-                  style={{ border: 0, filter: 'invert(1) hue-rotate(180deg)' }}
-                  allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-                />
+                {config.maps.embedUrl ? (
+                  <iframe
+                    title={`${config.company.name} Location`}
+                    src={config.maps.embedUrl}
+                    width="100%" height="100%"
+                    style={{ border: 0, filter: 'invert(1) hue-rotate(180deg)' }}
+                    allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+                  />
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-center px-6 bg-[#0A0A0A]">
+                    <p className="text-accent font-semibold">Map location</p>
+                    <p className="text-gray-500 text-sm mt-2">{config.contact.address}</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

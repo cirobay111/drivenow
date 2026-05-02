@@ -32,7 +32,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled ? 'bg-[#0D0D0D]/95 backdrop-blur-md border-[#C9A441]/20 shadow-gold' : 'bg-[#0D0D0D] border-[#2A2A2A]'}`}>
+    <nav className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled ? 'bg-[#080808]/90 backdrop-blur-xl border-[#C9A441]/20 shadow-gold' : 'bg-[#080808]/95 border-white/10'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
@@ -50,13 +50,15 @@ export default function Navbar() {
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-full p-1">
             {navLinks.map(({ id, label }) => (
               <button key={id} onClick={() => scrollTo(id)}
-                className="relative text-sm font-medium text-gray-400 hover:text-white transition-colors duration-150">
+                className="relative text-sm font-medium text-gray-400 hover:text-white transition-colors duration-150 px-4 py-2 rounded-full hover:bg-white/5">
                 {label}
               </button>
             ))}
+          </div>
+          <div className="hidden md:flex items-center gap-3">
             <button onClick={() => scrollTo('cars')} className="btn-primary text-sm py-2 px-5">Book Now</button>
           </div>
 

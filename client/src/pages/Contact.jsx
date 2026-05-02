@@ -72,13 +72,20 @@ export default function Contact() {
             </div>
 
             <div className="card overflow-hidden h-64">
-              <iframe
-                title={`${company.name} Location`}
-                src={maps.embedUrl}
-                width="100%" height="100%"
-                style={{ border: 0, filter: 'invert(1) hue-rotate(180deg)' }}
-                allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-              />
+              {maps.embedUrl ? (
+                <iframe
+                  title={`${company.name} Location`}
+                  src={maps.embedUrl}
+                  width="100%" height="100%"
+                  style={{ border: 0, filter: 'invert(1) hue-rotate(180deg)' }}
+                  allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+                />
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-center px-6 bg-[#0A0A0A]">
+                  <p className="text-accent font-semibold">Map location</p>
+                  <p className="text-gray-500 text-sm mt-2">{contact.address}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
