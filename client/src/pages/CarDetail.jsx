@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import config from '../config/config';
-import { carService } from '../services/api';
+import { useCars } from '../hooks';
+import { Fuel, Cog, Users, Calendar } from 'lucide-react';
 
 export default function CarDetail() {
   const { id } = useParams();
+  const { cars, isLoading } = useCars();
   const [car, setCar] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    carService.getById(id)
-      .then(res => setCar(res.data.data))
-      .catch(() => setCar(null))
-      .finally(() => setIsLoading(false));
-  }, [id]);
+    if (!isLoading && cars.length > 0) {
+      const foundCar = cars.find(c => c.id === Number(id));
+      setCar(foundCar || null);
+    }
+  }, [id, cars, isLoading]);
 
   if (isLoading) return (
     <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
@@ -25,7 +26,9 @@ export default function CarDetail() {
     return (
       <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-5xl mb-4">🚗</p>
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12M8 12h12m-12 5h12M3 7l1.293-1.293a1 1 0 011.414 0L9 7m0 0l1.293-1.293a1 1 0 011.414 0L15 7" />
+          </svg>
           <p className="text-gray-400 text-lg mb-4">Car not found.</p>
           <Link to="/cars" className="btn-outline text-sm">Browse All Cars</Link>
         </div>
@@ -37,10 +40,10 @@ export default function CarDetail() {
   const fallbackImage = 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800';
 
   const specs = [
-    { icon: '⛽', label: 'Fuel',         value: car.fuel_type },
-    { icon: '⚙️', label: 'Transmission', value: car.transmission },
-    { icon: '👥', label: 'Seats',        value: `${car.seats} Passengers` },
-    { icon: '📅', label: 'Year',         value: car.year },
+    { icon: Fuel, label: 'Fuel',         value: car.fuel_type },
+    { icon: Cog, label: 'Transmission', value: car.transmission },
+    { icon: Users, label: 'Seats',        value: `${car.seats} Passengers` },
+    { icon: Calendar, label: 'Year',         value: car.year },
   ];
 
   return (
@@ -74,9 +77,9 @@ export default function CarDetail() {
             <div className="card p-6">
               <h2 className="font-bold text-white text-xl mb-4">Specifications</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {specs.map(({ icon, label, value }) => (
+                {specs.map(({ icon: Icon, label, value }) => (
                   <div key={label} className="bg-[#0D0D0D] border border-[#2A2A2A] rounded-xl p-4 text-center hover:border-accent/30 transition-colors">
-                    <div className="text-2xl mb-1">{icon}</div>
+                    <Icon className="w-6 h-6 mx-auto mb-1 text-accent" />
                     <p className="text-xs text-gray-600 font-medium">{label}</p>
                     <p className="text-white font-bold text-sm mt-1">{value}</p>
                   </div>

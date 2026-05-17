@@ -1,21 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import CarCard from '../components/CarCard';
 import config from '../config/config';
-import { carService } from '../services/api';
+import { useCars } from '../hooks';
 
 export default function Cars() {
-  const [allCars, setAllCars] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { cars: allCars, isLoading } = useCars();
   const [filters, setFilters] = useState({
     brand: '', fuel_type: '', transmission: '', seats: '', min_price: '', max_price: '',
   });
-
-  useEffect(() => {
-    carService.getAll()
-      .then(res => setAllCars(res.data.data || []))
-      .catch(() => setAllCars([]))
-      .finally(() => setIsLoading(false));
-  }, []);
 
   const brands        = useMemo(() => [...new Set(allCars.map(c => c.brand))].sort(), [allCars]);
   const fuelTypes     = useMemo(() => [...new Set(allCars.map(c => c.fuel_type))].sort(), [allCars]);
@@ -130,7 +122,9 @@ export default function Cars() {
               </div>
             ) : cars.length === 0 ? (
               <div className="text-center py-20 text-gray-600">
-                <p className="text-5xl mb-4">🚗</p>
+                <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12M8 12h12m-12 5h12M3 7l1.293-1.293a1 1 0 011.414 0L9 7m0 0l1.293-1.293a1 1 0 011.414 0L15 7" />
+                </svg>
                 <p className="text-lg font-medium text-gray-400">No cars match your filters</p>
                 <button onClick={handleReset} className="btn-outline mt-4 text-sm">Clear Filters</button>
               </div>

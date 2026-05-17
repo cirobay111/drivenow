@@ -24,10 +24,10 @@
     "badge": "Why Choose Us",
     "title": "The Difference",
     "items": [
-      { "icon": "💰", "title": "Affordable Prices",   "desc": "Best rates guaranteed with no hidden fees."       },
-      { "icon": "🛡️", "title": "Insurance Included", "desc": "Full coverage insurance on every rental."         },
-      { "icon": "🕐", "title": "24/7 Support",        "desc": "Our team is always available to assist you."     },
-      { "icon": "🚀", "title": "Fast Booking",        "desc": "Book your car in under 2 minutes online."        }
+      { "icon": "DollarSign", "title": "Affordable Prices",   "desc": "Best rates guaranteed with no hidden fees."       },
+      { "icon": "Shield", "title": "Insurance Included", "desc": "Full coverage insurance on every rental."         },
+      { "icon": "Clock", "title": "24/7 Support",        "desc": "Our team is always available to assist you."     },
+      { "icon": "Zap", "title": "Fast Booking",        "desc": "Book your car in under 2 minutes online."        }
     ]
   },
 

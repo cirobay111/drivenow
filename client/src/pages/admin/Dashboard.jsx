@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import config from '../../config/config';
 import { bookingService } from '../../services/api';
+import { FileText, DollarSign, Car, Sparkles } from 'lucide-react';
 
 const STATUS_STYLES = {
   pending:   'bg-yellow-900/40 text-yellow-400 border border-yellow-800',
@@ -44,10 +45,10 @@ export default function Dashboard() {
   }));
 
   const statCards = [
-    { icon: '📋', label: 'Total Bookings',  value: stats.totalBookings,                        color: 'bg-purple-900/40 text-purple-400' },
-    { icon: '💰', label: 'Revenue',         value: `${currency}${stats.totalRevenue.toFixed(2)}`, color: 'bg-green-900/40 text-green-400'  },
-    { icon: '🚗', label: 'Available Cars',  value: stats.availableCars,                        color: 'bg-blue-900/40 text-blue-400'    },
-    { icon: '🆕', label: 'New Today',       value: stats.newToday,                             color: 'bg-accent/20 text-accent'        },
+    { icon: FileText, label: 'Total Bookings',  value: stats.totalBookings,                        color: 'bg-purple-900/40 text-purple-400' },
+    { icon: DollarSign, label: 'Revenue',         value: `${currency}${stats.totalRevenue.toFixed(2)}`, color: 'bg-green-900/40 text-green-400'  },
+    { icon: Car, label: 'Available Cars',  value: stats.availableCars,                        color: 'bg-blue-900/40 text-blue-400'    },
+    { icon: Sparkles, label: 'New Today',       value: stats.newToday,                             color: 'bg-accent/20 text-accent'        },
   ];
 
   return (
@@ -58,9 +59,11 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {statCards.map(({ icon, label, value, color }) => (
+        {statCards.map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="card p-5 flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl ${color}`}>{icon}</div>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
+              <Icon className="w-6 h-6" />
+            </div>
             <div>
               <p className="text-gray-500 text-xs font-medium">{label}</p>
               <p className="text-white font-bold text-2xl">{value}</p>
@@ -102,7 +105,7 @@ export default function Dashboard() {
           </div>
           {recent.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-4xl mb-3">📋</p>
+              <FileText className="w-10 h-10 mx-auto mb-3 text-gray-600" />
               <p className="text-gray-500 text-sm">No bookings yet.</p>
               <p className="text-gray-600 text-xs mt-1">They'll appear here when customers book cars.</p>
             </div>

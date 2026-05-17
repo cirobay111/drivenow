@@ -1,31 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import { carService } from '../../services/api';
+import { useCars } from '../../hooks';
 
 const EMPTY_FORM = { brand: '', model: '', year: '', price_per_day: '', fuel_type: 'Gasoline', seats: '', transmission: 'Automatic', image_url: '', description: '', available: true };
 
 export default function ManageCars() {
-  const [cars, setCars] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { cars, isLoading, refetch } = useCars();
   const [showModal, setShowModal] = useState(false);
   const [editingCar, setEditingCar] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-
-  const loadCars = async () => {
-    setIsLoading(true);
-    try {
-      const res = await carService.getAll();
-      setCars(res.data.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => { loadCars(); }, []);
 
   const openAdd = () => { setEditingCar(null); setForm(EMPTY_FORM); setError(''); setShowModal(true); };
   const openEdit = (car) => { setEditingCar(car); setForm({ ...car }); setError(''); setShowModal(true); };
@@ -46,7 +32,7 @@ export default function ManageCars() {
       } else {
         await carService.create(form);
       }
-      await loadCars();
+      await refetch();
       closeModal();
     } catch (err) {
       setError(err.response?.data?.error || 'Operation failed.');
@@ -59,7 +45,7 @@ export default function ManageCars() {
     if (!confirm(`Delete ${car.brand} ${car.model}?`)) return;
     try {
       await carService.delete(car.id);
-      setCars(prev => prev.filter(c => c.id !== car.id));
+      await refetch();
     } catch (err) {
       alert('Delete failed.');
     }

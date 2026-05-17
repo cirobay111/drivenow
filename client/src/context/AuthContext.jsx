@@ -11,9 +11,21 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     try {
+      const token = localStorage.getItem(TOKEN_KEY);
       const saved = localStorage.getItem(SESSION_KEY);
-      if (saved) setUser(JSON.parse(saved));
-    } catch { /* corrupted storage — ignore */ }
+      // Only restore session if both token and session exist
+      if (token && saved) {
+        setUser(JSON.parse(saved));
+      } else {
+        // Clear incomplete session
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(SESSION_KEY);
+      }
+    } catch { 
+      // corrupted storage — clear it
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(SESSION_KEY);
+    }
     setIsLoading(false);
   }, []);
 

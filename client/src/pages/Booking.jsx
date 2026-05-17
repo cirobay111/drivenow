@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import config from '../config/config';
 import content from '../data/content.json';
-import { carService, bookingService } from '../services/api';
+import { useCars } from '../hooks';
+import { bookingService } from '../services/api';
+import { CheckCircle, Check } from 'lucide-react';
 
 export default function Booking() {
   const { id } = useParams();
+  const { cars, isLoading: isLoadingCars } = useCars();
   const [car, setCar] = useState(null);
-  const [isLoadingCar, setIsLoadingCar] = useState(true);
 
   const [form, setForm] = useState({
     customer_name: '', customer_email: '', customer_phone: '',
@@ -18,11 +20,11 @@ export default function Booking() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    carService.getById(id)
-      .then(res => setCar(res.data.data))
-      .catch(() => setCar(null))
-      .finally(() => setIsLoadingCar(false));
-  }, [id]);
+    if (!isLoadingCars && cars.length > 0) {
+      const foundCar = cars.find(c => c.id === Number(id));
+      setCar(foundCar || null);
+    }
+  }, [id, cars, isLoadingCars]);
 
   const { currency } = config;
   const { booking: bookingContent } = content;
@@ -50,7 +52,7 @@ export default function Booking() {
     }
   };
 
-  if (isLoadingCar) return (
+  if (isLoadingCars) return (
     <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
     </div>
@@ -60,7 +62,9 @@ export default function Booking() {
     return (
       <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-5xl mb-4">🚗</p>
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12M8 12h12m-12 5h12M3 7l1.293-1.293a1 1 0 011.414 0L9 7m0 0l1.293-1.293a1 1 0 011.414 0L15 7" />
+          </svg>
           <p className="text-gray-400 text-lg mb-4">Car not found.</p>
           <Link to="/cars" className="btn-outline text-sm">Browse All Cars</Link>
         </div>
@@ -72,7 +76,7 @@ export default function Booking() {
     <div className="min-h-screen flex items-center justify-center bg-[#0D0D0D] p-4">
       <div className="card p-10 max-w-md w-full text-center">
         <div className="w-20 h-20 bg-accent/20 border border-accent/40 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-4xl">✅</span>
+          <CheckCircle className="w-10 h-10 text-accent" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Booking Confirmed!</h2>
         <p className="text-gray-500 mb-6">
@@ -156,7 +160,11 @@ export default function Booking() {
               </div>
               {/* Edit guarantees in src/data/content.json → booking.guarantees */}
               <div className="mt-4 space-y-1.5 text-xs text-gray-600">
-                {bookingContent.guarantees.map(g => <p key={g}>✓ {g}</p>)}
+                {bookingContent.guarantees.map(g => (
+                  <p key={g} className="flex items-center gap-2">
+                    <Check className="w-3 h-3 text-accent flex-shrink-0" /> {g}
+                  </p>
+                ))}
               </div>
             </div>
           </div>

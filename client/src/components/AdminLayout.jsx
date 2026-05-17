@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import config from '../config/config';
+import { BarChart3, FileText, Car, LogOut } from 'lucide-react';
 
 const navItems = [
-  { to: '/admin',          icon: '📊', label: 'Dashboard',    end: true },
-  { to: '/admin/bookings', icon: '📋', label: 'Reservations'            },
-  { to: '/admin/cars',     icon: '🚗', label: 'Cars'                    },
+  { to: '/admin',          icon: BarChart3, label: 'Dashboard',    end: true },
+  { to: '/admin/bookings', icon: FileText, label: 'Reservations'            },
+  { to: '/admin/cars',     icon: Car, label: 'Cars'                    },
 ];
 
 export default function AdminLayout({ children }) {
@@ -39,7 +40,7 @@ export default function AdminLayout({ children }) {
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
-            {navItems.map(({ to, icon, label, end }) => (
+            {navItems.map(({ to, icon: Icon, label, end }) => (
               <NavLink
                 key={to} to={to} end={end}
                 onClick={() => setSidebarOpen(false)}
@@ -50,7 +51,7 @@ export default function AdminLayout({ children }) {
                     : 'text-gray-500 hover:text-white hover:bg-white/5'}`
                 }
               >
-                <span>{icon}</span>{label}
+                <Icon className="w-5 h-5" />{label}
               </NavLink>
             ))}
           </nav>
@@ -68,9 +69,9 @@ export default function AdminLayout({ children }) {
             </div>
             <button
               onClick={handleLogout}
-              className="w-full text-left text-gray-600 hover:text-red-400 text-sm px-3 py-2 rounded-lg hover:bg-white/5 transition-all"
+              className="w-full text-left text-gray-600 hover:text-red-400 text-sm px-3 py-2 rounded-lg hover:bg-white/5 transition-all flex items-center gap-2"
             >
-              🚪 Sign Out
+              <LogOut className="w-4 h-4" /> Sign Out
             </button>
           </div>
         </div>

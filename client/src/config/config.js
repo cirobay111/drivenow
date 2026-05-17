@@ -8,7 +8,7 @@
 const config = {
   company: {
     // Shown in the navbar and footer logo area
-    name: 'YOUR COMPANY',
+    name: 'Kat Car Marrakech',
     tagline: 'Car Rental',
     // Shown in the footer description
     description: 'Your premium car rental service. Affordable rates, full insurance, and 24/7 support.',

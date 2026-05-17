@@ -2,7 +2,7 @@
   "_seq": {
     "users": 2,
     "cars": 15,
-    "bookings": 1
+    "bookings": 4
   },
   "users": [
     {
@@ -198,5 +198,45 @@
       "available": true
     }
   ],
-  "bookings": []
+  "bookings": [
+    {
+      "id": 1,
+      "car_id": 1,
+      "customer_name": "Zakaria Ouali",
+      "customer_email": "oualizakaria5@gmail.com",
+      "customer_phone": "0605689787",
+      "pickup_location": "marrakech",
+      "pickup_date": "2026-05-16",
+      "return_date": "2026-05-17",
+      "total_price": 150,
+      "status": "pending",
+      "created_at": "2026-05-16T21:00:41.477Z"
+    },
+    {
+      "id": 2,
+      "car_id": 1,
+      "customer_name": "Zakaria Ouali",
+      "customer_email": "oualizakaria5@gmail.com",
+      "customer_phone": "0605689787",
+      "pickup_location": "marrakech",
+      "pickup_date": "2026-05-16",
+      "return_date": "2026-05-17",
+      "total_price": 150,
+      "status": "pending",
+      "created_at": "2026-05-16T21:10:36.806Z"
+    },
+    {
+      "id": 3,
+      "car_id": 1,
+      "customer_name": "Zakaria Ouali",
+      "customer_email": "oualizakaria5@gmail.com",
+      "customer_phone": "0605689787",
+      "pickup_location": "marrakech",
+      "pickup_date": "2026-05-16",
+      "return_date": "2026-05-19",
+      "total_price": 450,
+      "status": "pending",
+      "created_at": "2026-05-16T21:12:35.750Z"
+    }
+  ]
 }

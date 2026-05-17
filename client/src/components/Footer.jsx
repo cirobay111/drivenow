@@ -25,8 +25,6 @@ export default function Footer() {
               </div>
             </Link>
             <p className="mt-4 text-sm leading-relaxed max-w-xs text-gray-500">{company.description}</p>
-            <p className="mt-3 text-xs text-accent/70">📍 {contact.address}</p>
-
             {/* Social links — add URLs in src/config/config.js */}
             {(social.instagram || social.facebook || social.twitter) && (
               <div className="flex gap-4 mt-4">
@@ -58,9 +56,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4 tracking-wide">Contact</h4>
             <ul className="space-y-2 text-sm">
-              <li>📞 {contact.phone}</li>
-              <li>✉️ {contact.email}</li>
-              <li>📍 {contact.address}</li>
+              <li>{contact.phone}</li>
+              <li>{contact.email}</li>
+              <li>{contact.address}</li>
               {contact.whatsapp && (
                 <li>
                   <a
@@ -69,7 +67,7 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="text-green-500 hover:text-green-400 transition-colors"
                   >
-                    💬 WhatsApp
+                    WhatsApp
                   </a>
                 </li>
               )}

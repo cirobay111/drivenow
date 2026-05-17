@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import config from '../../config/config';
 import { bookingService } from '../../services/api';
+import { Search, FileText, Trash2, Calendar } from 'lucide-react';
 
 const STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
 
@@ -82,7 +83,7 @@ export default function ManageBookings() {
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">🔍</span>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" style={{transform: 'translateY(-50%)'}} />
           <input
             type="text"
             placeholder="Search by name, phone, email or car..."
@@ -113,13 +114,13 @@ export default function ManageBookings() {
         </div>
       ) : bookings.length === 0 ? (
         <div className="card p-16 text-center text-gray-500">
-          <p className="text-5xl mb-4">📋</p>
+          <FileText className="w-12 h-12 mx-auto mb-4 text-gray-600" />
           <p className="text-lg font-medium text-gray-400">No bookings yet</p>
           <p className="text-sm text-gray-600 mt-1">They'll appear here when customers submit the booking form.</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="card p-12 text-center text-gray-500">
-          <p className="text-4xl mb-3">🔍</p>
+          <Search className="w-12 h-12 mx-auto mb-3 text-gray-600" />
           <p className="text-gray-400">No results for your search / filter.</p>
           <button onClick={() => { setSearch(''); setFilterStatus(''); }} className="btn-outline mt-4 text-sm">Clear filters</button>
         </div>
@@ -154,8 +155,8 @@ export default function ManageBookings() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
-                        <p>📅 {r.pickup_date}</p>
-                        <p>📅 {r.return_date}</p>
+                        <div className="flex items-center gap-1 mb-1"><Calendar className="w-3 h-3" /> {r.pickup_date}</div>
+                        <div className="flex items-center gap-1 mb-1"><Calendar className="w-3 h-3" /> {r.return_date}</div>
                         <p className="text-gray-600">{days} day{days !== 1 ? 's' : ''}</p>
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500 max-w-[120px]">
@@ -178,7 +179,7 @@ export default function ManageBookings() {
                           >
                             {STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                           </select>
-                          <button onClick={() => setConfirmDelete(r.id)} className="text-gray-600 hover:text-red-400 transition-colors p-1 rounded" title="Delete booking">🗑️</button>
+                          <button onClick={() => setConfirmDelete(r.id)} className="text-gray-600 hover:text-red-400 transition-colors p-1 rounded" title="Delete booking"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </td>
                     </tr>
@@ -193,7 +194,7 @@ export default function ManageBookings() {
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
           <div className="card p-6 max-w-sm w-full text-center">
-            <p className="text-3xl mb-3">🗑️</p>
+            <Trash2 className="w-10 h-10 mx-auto mb-3 text-red-500" />
             <h3 className="text-lg font-bold text-white mb-2">Delete Booking?</h3>
             <p className="text-gray-500 text-sm mb-6">This action cannot be undone.</p>
             <div className="flex gap-3">

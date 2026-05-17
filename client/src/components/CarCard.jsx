@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import config from '../config/config';
+import { Fuel, Users, Cog } from 'lucide-react';
 
 export default function CarCard({ car, index = 0 }) {
   const { currency } = config;
@@ -29,9 +30,9 @@ export default function CarCard({ car, index = 0 }) {
         <p className="text-gray-500 text-sm">{car.year}</p>
 
         <div className="grid grid-cols-3 gap-2 mt-4">
-          <Spec icon="⛽" label={car.fuel_type} />
-          <Spec icon="👥" label={`${car.seats} Seats`} />
-          <Spec icon="⚙️" label={car.transmission} />
+          <Spec icon={Fuel} label={car.fuel_type} />
+          <Spec icon={Users} label={`${car.seats} Seats`} />
+          <Spec icon={Cog} label={car.transmission} />
         </div>
 
         <div className="flex gap-2 mt-5">
@@ -45,10 +46,10 @@ export default function CarCard({ car, index = 0 }) {
   );
 }
 
-function Spec({ icon, label }) {
+function Spec({ icon: Icon, label }) {
   return (
     <div className="flex flex-col items-center bg-[#0D0D0D] border border-[#2A2A2A] rounded-lg py-2 px-1 transition-colors duration-150 hover:border-accent/30">
-      <span className="text-base">{icon}</span>
+      <Icon className="w-4 h-4 text-accent" />
       <span className="text-xs text-gray-500 font-medium mt-1 text-center leading-tight">{label}</span>
     </div>
   );

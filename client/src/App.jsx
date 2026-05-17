@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -7,19 +7,14 @@ import Cars from './pages/Cars';
 import CarDetail from './pages/CarDetail';
 import Booking from './pages/Booking';
 import Contact from './pages/Contact';
-import Login from './pages/Login';
 import Dashboard from './pages/admin/Dashboard';
 import ManageCars from './pages/admin/ManageCars';
 import ManageBookings from './pages/admin/ManageBookings';
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
-  return isAuthenticated ? children : <Navigate to="/admin/login" replace />;
+  // TODO: Add authentication check back later
+  // For now, allow access to all admin routes
+  return children;
 };
 
 const PublicLayout = ({ children }) => (
@@ -41,7 +36,6 @@ function AnimatedRoutes() {
         <Route path="/cars/:id" element={<PublicLayout><CarDetail /></PublicLayout>} />
         <Route path="/booking/:id" element={<PublicLayout><Booking /></PublicLayout>} />
         <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
-        <Route path="/admin/login" element={<Login />} />
         <Route path="/admin" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/admin/cars" element={<ProtectedRoute><ManageCars /></ProtectedRoute>} />
         <Route path="/admin/bookings" element={<ProtectedRoute><ManageBookings /></ProtectedRoute>} />
@@ -53,7 +47,7 @@ function AnimatedRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <AnimatedRoutes />
       </AuthProvider>

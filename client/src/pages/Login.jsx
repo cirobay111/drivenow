@@ -10,7 +10,9 @@ export default function Login() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  if (isAuthenticated) return <Navigate to="/admin" replace />;
+  // Only redirect if authenticated AND token exists
+  const hasToken = !!localStorage.getItem('token');
+  if (isAuthenticated && hasToken) return <Navigate to="/admin" replace />;
 
   const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 

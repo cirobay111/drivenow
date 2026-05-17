@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import config from '../config/config';
 import content from '../data/content.json';
+import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
@@ -14,10 +15,10 @@ export default function Contact() {
   const { contact, maps, company } = config;
 
   const contactItems = [
-    { icon: '📞', title: 'Phone',  lines: [contact.phone, 'Available 24/7']                       },
-    { icon: '✉️', title: 'Email',  lines: [contact.email, contact.supportEmail]                   },
-    { icon: '📍', title: 'Office', lines: [contact.address]                                       },
-    { icon: '🕐', title: 'Hours',  lines: [contact.hours.weekdays, contact.hours.weekends]        },
+    { icon: Phone, title: 'Phone',  lines: [contact.phone, 'Available 24/7']                       },
+    { icon: Mail, title: 'Email',  lines: [contact.email, contact.supportEmail]                   },
+    { icon: MapPin, title: 'Office', lines: [contact.address]                                       },
+    { icon: Clock, title: 'Hours',  lines: [contact.hours.weekdays, contact.hours.weekends]        },
   ];
 
   return (
@@ -34,7 +35,7 @@ export default function Contact() {
             <h2 className="text-2xl font-bold text-white mb-6">Send Us a Message</h2>
             {submitted ? (
               <div className="text-center py-12">
-                <div className="text-6xl mb-4">📬</div>
+                <Mail className="w-16 h-16 mx-auto mb-4 text-accent" />
                 <h3 className="text-xl font-bold text-white mb-2">Message Sent!</h3>
                 <p className="text-gray-500">We'll get back to you within 24 hours.</p>
                 <button onClick={() => setSubmitted(false)} className="btn-outline mt-6 text-sm">Send Another</button>
@@ -60,9 +61,11 @@ export default function Contact() {
           <div className="space-y-6">
             <div className="card p-6">
               <h2 className="text-xl font-bold text-white mb-5">Get in Touch</h2>
-              {contactItems.map(({ icon, title, lines }) => (
+              {contactItems.map(({ icon: Icon, title, lines }) => (
                 <div key={title} className="flex gap-4 mb-5 last:mb-0">
-                  <div className="w-12 h-12 bg-accent/10 border border-accent/20 rounded-xl flex items-center justify-center text-xl shrink-0">{icon}</div>
+                  <div className="w-12 h-12 bg-accent/10 border border-accent/20 rounded-xl flex items-center justify-center text-accent shrink-0">
+                    <Icon className="w-5 h-5" />
+                  </div>
                   <div>
                     <p className="font-semibold text-white">{title}</p>
                     {lines.map(l => <p key={l} className="text-gray-500 text-sm">{l}</p>)}
