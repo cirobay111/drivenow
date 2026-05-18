@@ -17,9 +17,9 @@ const bookingValidation = [
 ];
 
 router.post('/', publicLimiter, bookingValidation, createBooking);
-router.get('/stats', authLimiter, getStats);
-router.get('/', authLimiter, getBookings);
-router.put('/:id/status', authLimiter, updateBookingStatus);
-router.delete('/:id', authLimiter, deleteBooking);
+router.get('/stats', authenticate, requireAdmin, authLimiter, getStats);
+router.get('/', authenticate, requireAdmin, authLimiter, getBookings);
+router.put('/:id/status', authenticate, requireAdmin, authLimiter, updateBookingStatus);
+router.delete('/:id', authenticate, requireAdmin, authLimiter, deleteBooking);
 
 module.exports = router;
