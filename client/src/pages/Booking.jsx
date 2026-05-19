@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import config from '../config/config';
 import { useLanguage } from '../context/LanguageContext';
@@ -13,7 +13,6 @@ export default function Booking() {
   const { cars, isLoading: isLoadingCars } = useCars();
   const { t } = useLanguage();
   const [car, setCar] = useState(null);
-  const receiptRef = useRef(null);
 
   const [form, setForm] = useState({
     customer_name: '', customer_email: '', customer_phone: '',
@@ -89,51 +88,59 @@ export default function Booking() {
       )}`
     : null;
 
-  const handlePrintReceipt = () => {
-    const el = receiptRef.current;
-    if (!el) return;
-    const win = window.open('', '_blank', 'width=600,height=800');
-    win.document.write(`
-      <html><head><title>Booking Receipt</title>
-      <style>
-        body{font-family:system-ui,sans-serif;padding:40px;color:#222;max-width:500px;margin:0 auto}
-        h1{font-size:22px;margin:0 0 4px}
-        .sub{color:#888;font-size:13px;margin-bottom:24px}
-        .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:14px}
-        .row .label{color:#666}
-        .row .val{font-weight:600}
-        .total{font-size:20px;color:#C9A441;font-weight:700}
-        .footer{margin-top:32px;text-align:center;color:#aaa;font-size:11px}
-        .badge{background:#C9A441;color:#000;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;margin-bottom:16px}
-      </style></head><body>
-        <div style="text-align:center;margin-bottom:24px">
-          <span class="badge">✓ ${t('booking.confirmed')}</span>
-          <h1>${config.company.name}</h1>
-          <p class="sub">${config.company.tagline}</p>
-        </div>
-        <div class="row"><span class="label">${t('booking.fullName')}</span><span class="val">${form.customer_name}</span></div>
-        <div class="row"><span class="label">${t('booking.email')}</span><span class="val">${form.customer_email}</span></div>
-        <div class="row"><span class="label">${t('booking.phone')}</span><span class="val">${form.customer_phone}</span></div>
-        <div class="row"><span class="label">Car</span><span class="val">${car.brand} ${car.model} (${car.year})</span></div>
-        <div class="row"><span class="label">${t('booking.pickupLocation')}</span><span class="val">${form.pickup_location}</span></div>
-        <div class="row"><span class="label">${t('booking.pickupDate')}</span><span class="val">${form.pickup_date}</span></div>
-        <div class="row"><span class="label">${t('booking.returnDate')}</span><span class="val">${form.return_date}</span></div>
-        <div class="row"><span class="label">${t('booking.duration')}</span><span class="val">${totalDays} ${totalDays > 1 ? t('car.days') : t('car.day')}</span></div>
-        <div class="row"><span class="label">${t('booking.pricePerDay')}</span><span class="val">${currency}${car.price_per_day}</span></div>
-        <div class="row" style="border-bottom:2px solid #C9A441"><span class="label" style="font-weight:600">${t('booking.total')}</span><span class="total">${currency}${totalPrice}</span></div>
-        <div class="footer">
-          <p>${config.contact.phone} · ${config.contact.email}</p>
-          <p>${config.contact.address}</p>
-        </div>
-      </body></html>
-    `);
-    win.document.close();
-    win.print();
+  const handleDownloadReceipt = () => {
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Receipt - ${car.brand} ${car.model}</title>
+<style>
+  body{font-family:system-ui,-apple-system,sans-serif;padding:40px;color:#222;max-width:520px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:#888;font-size:13px;margin-bottom:24px}
+  .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:14px}
+  .row .label{color:#666}
+  .row .val{font-weight:600;text-align:right}
+  .total{font-size:22px;color:#C9A441;font-weight:700}
+  .footer{margin-top:32px;text-align:center;color:#aaa;font-size:11px}
+  .badge{background:#C9A441;color:#000;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:16px}
+  .header{text-align:center;margin-bottom:28px}
+  .divider{border:none;border-top:2px solid #C9A441;margin:8px 0}
+  @media print{body{padding:20px}}
+</style></head><body>
+  <div class="header">
+    <span class="badge">${t('booking.confirmed')}</span>
+    <h1>${config.company.name}</h1>
+    <p class="sub">${config.company.tagline}</p>
+  </div>
+  <div class="row"><span class="label">${t('booking.fullName')}</span><span class="val">${form.customer_name}</span></div>
+  <div class="row"><span class="label">${t('booking.email')}</span><span class="val">${form.customer_email}</span></div>
+  <div class="row"><span class="label">${t('booking.phone')}</span><span class="val">${form.customer_phone}</span></div>
+  <div class="row"><span class="label">Car</span><span class="val">${car.brand} ${car.model} (${car.year})</span></div>
+  <div class="row"><span class="label">${t('booking.pickupLocation')}</span><span class="val">${form.pickup_location}</span></div>
+  <div class="row"><span class="label">${t('booking.pickupDate')}</span><span class="val">${form.pickup_date}</span></div>
+  <div class="row"><span class="label">${t('booking.returnDate')}</span><span class="val">${form.return_date}</span></div>
+  <div class="row"><span class="label">${t('booking.duration')}</span><span class="val">${totalDays} ${totalDays > 1 ? t('car.days') : t('car.day')}</span></div>
+  <div class="row"><span class="label">${t('booking.pricePerDay')}</span><span class="val">${currency}${car.price_per_day}</span></div>
+  <hr class="divider">
+  <div class="row"><span class="label" style="font-weight:700;font-size:16px">${t('booking.total')}</span><span class="total">${currency}${totalPrice}</span></div>
+  <div class="footer">
+    <p>${config.contact.phone} &middot; ${config.contact.email}</p>
+    <p>${config.contact.address}</p>
+  </div>
+</body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `receipt-${car.brand}-${car.model}-${form.pickup_date}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   if (success) return (
     <div className="min-h-screen flex items-center justify-center bg-[#0D0D0D] p-4">
-      <div className="card p-10 max-w-md w-full text-center" ref={receiptRef}>
+      <div className="card p-10 max-w-md w-full text-center">
         <div className="w-20 h-20 bg-accent/20 border border-accent/40 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-10 h-10 text-accent" />
         </div>
@@ -161,7 +168,7 @@ export default function Booking() {
           )}
 
           {/* Download receipt */}
-          <button onClick={handlePrintReceipt}
+          <button onClick={handleDownloadReceipt}
             className="flex items-center justify-center gap-2 w-full btn-outline py-3 text-sm">
             <Download className="w-4 h-4" /> {t('booking.downloadReceipt')}
           </button>
