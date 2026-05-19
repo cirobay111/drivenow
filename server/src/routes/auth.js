@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { login, getMe } = require('../controllers/authController');
+const { login, getMe, changePassword } = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
 const { loginLimiter } = require('../middleware/rateLimiter');
 
@@ -17,5 +17,6 @@ router.post(
 );
 
 router.get('/me', authenticate, getMe);
+router.put('/change-password', authenticate, changePassword);
 
 module.exports = router;

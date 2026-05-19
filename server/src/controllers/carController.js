@@ -24,8 +24,19 @@ const createCar = (req, res) => {
   }
 
   try {
-    const { brand, model, year, price_per_day, fuel_type, seats, transmission, image_url, description } = req.body;
-    const car = db.insert('cars', { brand, model, year: parseInt(year), price_per_day: parseFloat(price_per_day), fuel_type, seats: parseInt(seats), transmission, image_url, description, available: true });
+    const { brand, model, year, price_per_day, fuel_type, seats, transmission, category, image_url, description, available } = req.body;
+    const car = db.insert('cars', {
+      brand, model,
+      year: parseInt(year),
+      price_per_day: parseFloat(price_per_day),
+      fuel_type,
+      seats: parseInt(seats),
+      transmission,
+      category: category || 'Économique',
+      image_url,
+      description,
+      available: available === false || available === 'false' ? false : true,
+    });
     res.status(201).json({ success: true, data: car, error: null });
   } catch (err) {
     console.error('Create car error:', err);
@@ -53,4 +64,26 @@ const deleteCar = (req, res) => {
   res.json({ success: true, data: { message: 'Car deleted' }, error: null });
 };
 
-module.exports = { getCars, getCarById, createCar, updateCar, deleteCar };
+const checkAvailability = (req, res) => {
+  const { id } = req.params;
+  const { pickup_date, return_date } = req.query;
+
+  if (!pickup_date || !return_date) {
+    return res.status(400).json({ success: false, error: 'pickup_date and return_date are required' });
+  }
+  if (pickup_date >= return_date) {
+    return res.status(400).json({ success: false, error: 'return_date must be after pickup_date' });
+  }
+
+  const car = db.findById('cars', id);
+  if (!car) return res.status(404).json({ success: false, error: 'Car not found' });
+
+  const hasConflict = db.checkDateConflict(id, pickup_date, return_date);
+  res.json({
+    success: true,
+    data: { available: car.available && !hasConflict },
+    error: null,
+  });
+};
+
+module.exports = { getCars, getCarById, createCar, updateCar, deleteCar, checkAvailability };

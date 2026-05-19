@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { getCars, getCarById, createCar, updateCar, deleteCar } = require('../controllers/carController');
+const { getCars, getCarById, createCar, updateCar, deleteCar, checkAvailability } = require('../controllers/carController');
 const { authenticate, requireAdmin } = require('../middleware/auth');
 const { publicLimiter, authLimiter } = require('../middleware/rateLimiter');
 
@@ -17,6 +17,7 @@ const carValidation = [
 ];
 
 router.get('/', publicLimiter, getCars);
+router.get('/:id/availability', publicLimiter, checkAvailability);
 router.get('/:id', publicLimiter, getCarById);
 router.post('/', authenticate, requireAdmin, authLimiter, carValidation, createCar);
 router.put('/:id', authenticate, requireAdmin, authLimiter, updateCar);

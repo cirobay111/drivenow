@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import config from '../config/config';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageToggle from './LanguageToggle';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => { setIsOpen(false); }, [location]);
 
@@ -16,19 +17,12 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const scrollTo = (id) => {
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 100);
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const { t } = useLanguage();
 
   const navLinks = [
-    { id: 'home',    label: 'Home'    },
-    { id: 'cars',    label: 'Cars'    },
-    { id: 'contact', label: 'Contact' },
+    { to: '/',        label: t('nav.home')    },
+    { to: '/cars',    label: t('nav.cars')    },
+    { to: '/contact', label: t('nav.contact') },
   ];
 
   return (
@@ -51,13 +45,16 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map(({ id, label }) => (
-              <button key={id} onClick={() => scrollTo(id)}
-                className="relative text-sm font-medium text-gray-400 hover:text-white transition-colors duration-150">
+            {navLinks.map(({ to, label }) => (
+              <NavLink key={to} to={to} end={to === '/'}
+                className={({ isActive }) =>
+                  `relative text-sm font-medium transition-colors duration-150 ${isActive ? 'text-accent' : 'text-gray-400 hover:text-white'}`
+                }>
                 {label}
-              </button>
+              </NavLink>
             ))}
-            <button onClick={() => scrollTo('cars')} className="btn-primary text-sm py-2 px-5">Book Now</button>
+            <LanguageToggle />
+            <Link to="/cars" className="btn-primary text-sm py-2 px-5">{t('car.book')}</Link>
           </div>
 
           <button className="md:hidden text-gray-400 hover:text-white transition-colors" onClick={() => setIsOpen(!isOpen)}>
@@ -72,13 +69,18 @@ export default function Navbar() {
         <div className="md:hidden overflow-hidden transition-all duration-250"
           style={{ maxHeight: isOpen ? '300px' : '0px', opacity: isOpen ? 1 : 0 }}>
           <div className="pb-4 space-y-1">
-            {navLinks.map(({ id, label }) => (
-              <button key={id} onClick={() => scrollTo(id)}
-                className="block w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+            {navLinks.map(({ to, label }) => (
+              <NavLink key={to} to={to} end={to === '/'}
+                className={({ isActive }) =>
+                  `block w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive ? 'text-accent bg-accent/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`
+                }>
                 {label}
-              </button>
+              </NavLink>
             ))}
-            <button onClick={() => scrollTo('cars')} className="block w-full btn-primary text-center text-sm mt-2">Book Now</button>
+            <div className="flex items-center gap-3 mt-2">
+              <LanguageToggle />
+              <Link to="/cars" className="flex-1 btn-primary text-center text-sm">{t('car.book')}</Link>
+            </div>
           </div>
         </div>
       </div>

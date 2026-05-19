@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import config from '../../config/config';
 import { carService } from '../../services/api';
 import { useCars } from '../../hooks';
 
-const EMPTY_FORM = { brand: '', model: '', year: '', price_per_day: '', fuel_type: 'Gasoline', seats: '', transmission: 'Automatic', image_url: '', description: '', available: true };
+const CATEGORIES = ['Économique', 'Berline', 'Classique', 'SUV', 'Sport', 'Supercar', 'Prestige'];
+const EMPTY_FORM = { brand: '', model: '', year: '', price_per_day: '', fuel_type: 'Gasoline', seats: '', transmission: 'Automatic', category: 'Économique', image_url: '', description: '', available: true };
 
 export default function ManageCars() {
   const { cars, isLoading, refetch } = useCars();
+  const { currency } = config;
   const [showModal, setShowModal] = useState(false);
   const [editingCar, setEditingCar] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -81,7 +84,7 @@ export default function ManageCars() {
               </div>
               <div className="p-4">
                 <p className="font-bold text-white">{car.brand} {car.model}</p>
-                <p className="text-accent font-semibold">${car.price_per_day}/day</p>
+                <p className="text-accent font-semibold">{currency}{car.price_per_day}/day</p>
                 <p className="text-gray-400 text-xs mt-1">{car.fuel_type} · {car.seats} seats · {car.transmission}</p>
                 <div className="flex gap-2 mt-4">
                   <button onClick={() => openEdit(car)} className="flex-1 btn-outline text-xs py-1.5">Edit</button>
@@ -108,7 +111,7 @@ export default function ManageCars() {
                 <ModalField label="Brand" name="brand" value={form.brand} onChange={handleChange} required />
                 <ModalField label="Model" name="model" value={form.model} onChange={handleChange} required />
                 <ModalField label="Year" name="year" type="number" value={form.year} onChange={handleChange} required />
-                <ModalField label="Price / Day ($)" name="price_per_day" type="number" value={form.price_per_day} onChange={handleChange} required />
+                <ModalField label={`Price / Day (${currency.trim()})`} name="price_per_day" type="number" value={form.price_per_day} onChange={handleChange} required />
                 <div>
                   <label className="block text-xs font-medium text-gray-400 mb-1">Fuel Type</label>
                   <select name="fuel_type" value={form.fuel_type} onChange={handleChange}
@@ -122,6 +125,13 @@ export default function ManageCars() {
                   <select name="transmission" value={form.transmission} onChange={handleChange}
                     className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20">
                     {['Automatic', 'Manual'].map(t => <option key={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1">Category</label>
+                  <select name="category" value={form.category || ''} onChange={handleChange}
+                    className="w-full bg-[#0D0D0D] border border-[#2A2A2A] text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20">
+                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className="flex items-center gap-2 col-span-2 pt-1">

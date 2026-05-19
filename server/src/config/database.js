@@ -4,6 +4,11 @@ const bcrypt = require('bcryptjs');
 
 const DATA_PATH = path.join(__dirname, '../../data.json');
 
+// ── Default admin — edit credentials in .env or here ────────────────────────
+const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || 'admin@drivenow.com';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin@123';
+const ADMIN_NAME     = process.env.ADMIN_NAME     || 'Admin';
+
 const DEFAULT_DATA = {
   _seq: { users: 1, cars: 1, bookings: 1 },
   users: [],
@@ -11,13 +16,21 @@ const DEFAULT_DATA = {
   bookings: [],
 };
 
-// Initialize data file
+// Initialize data file — creates a clean start with just an admin account
 const initData = () => {
   if (!fs.existsSync(DATA_PATH)) {
     const data = { ...DEFAULT_DATA };
-    data.users = [{ id: 1, name: 'Admin', email: 'admin@drivenow.com', password: bcrypt.hashSync('Admin@123', 10), role: 'admin', created_at: new Date().toISOString() }];
+    data.users = [{
+      id: 1,
+      name: ADMIN_NAME,
+      email: ADMIN_EMAIL,
+      password: bcrypt.hashSync(ADMIN_PASSWORD, 10),
+      role: 'admin',
+      created_at: new Date().toISOString(),
+    }];
     data._seq.users = 2;
     fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+    console.log(`Clean start: admin account created (${ADMIN_EMAIL})`);
   }
 };
 
@@ -74,6 +87,15 @@ const db = {
     const [removed] = data[col].splice(idx, 1);
     save(data);
     return removed;
+  },
+
+  checkDateConflict: (car_id, pickup_date, return_date) => {
+    const data = load();
+    return data.bookings.some(b => {
+      if (b.car_id !== parseInt(car_id)) return false;
+      if (['cancelled', 'completed'].includes(b.status)) return false;
+      return b.pickup_date < return_date && b.return_date > pickup_date;
+    });
   },
 
   searchCars: (filters) => {

@@ -17,6 +17,10 @@ api.interceptors.response.use(
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('admin_session');
+      // Redirect to login if we're in the admin area
+      if (window.location.pathname.startsWith('/admin')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   }
@@ -25,6 +29,8 @@ api.interceptors.response.use(
 export const carService = {
   getAll: (params) => api.get('/cars', { params }),
   getById: (id) => api.get(`/cars/${id}`),
+  checkAvailability: (id, pickup_date, return_date) =>
+    api.get(`/cars/${id}/availability`, { params: { pickup_date, return_date } }),
   create: (data) => api.post('/cars', data),
   update: (id, data) => api.put(`/cars/${id}`, data),
   delete: (id) => api.delete(`/cars/${id}`),
@@ -41,6 +47,7 @@ export const bookingService = {
 export const authService = {
   login: (data) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
+  changePassword: (data) => api.put('/auth/change-password', data),
 };
 
 export default api;

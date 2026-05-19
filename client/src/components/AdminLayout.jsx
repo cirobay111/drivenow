@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import config from '../config/config';
-import { BarChart3, FileText, Car, LogOut } from 'lucide-react';
+import { BarChart3, FileText, Car, Settings, LogOut } from 'lucide-react';
 
 const navItems = [
   { to: '/admin',          icon: BarChart3, label: 'Dashboard',    end: true },
   { to: '/admin/bookings', icon: FileText, label: 'Reservations'            },
   { to: '/admin/cars',     icon: Car, label: 'Cars'                    },
+  { to: '/admin/settings', icon: Settings, label: 'Settings'                 },
 ];
 
 export default function AdminLayout({ children }) {
@@ -15,7 +16,7 @@ export default function AdminLayout({ children }) {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleLogout = () => { logout(); navigate('/admin/login'); };
+  const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
     <div className="min-h-screen bg-[#0D0D0D] flex">

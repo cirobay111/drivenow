@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import config from '../config/config';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer() {
   const { company, contact, social } = config;
+  const { t } = useLanguage();
   const year = new Date().getFullYear();
 
   return (
@@ -42,9 +44,9 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-white font-semibold mb-4 tracking-wide">Quick Links</h4>
+            <h4 className="text-white font-semibold mb-4 tracking-wide">{t('footer.quickLinks')}</h4>
             <ul className="space-y-2 text-sm">
-              {[['/', 'Home'], ['/cars', 'Browse Cars'], ['/contact', 'Contact']].map(([to, label]) => (
+              {[['/', t('nav.home')], ['/cars', t('nav.cars')], ['/contact', t('nav.contact')]].map(([to, label]) => (
                 <li key={to}>
                   <Link to={to} className="hover:text-accent transition-colors duration-150">{label}</Link>
                 </li>
@@ -54,7 +56,7 @@ export default function Footer() {
 
           {/* Contact info — edit in src/config/config.js */}
           <div>
-            <h4 className="text-white font-semibold mb-4 tracking-wide">Contact</h4>
+            <h4 className="text-white font-semibold mb-4 tracking-wide">{t('footer.contactUs')}</h4>
             <ul className="space-y-2 text-sm">
               <li>{contact.phone}</li>
               <li>{contact.email}</li>
@@ -76,8 +78,8 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-[#2A2A2A] mt-10 pt-6 flex flex-col md:flex-row justify-between items-center text-sm gap-4">
-          <p className="text-gray-600">© {year} {company.name} {company.tagline}. All rights reserved.</p>
-          <Link to="/admin/login" className="text-gray-700 hover:text-gray-500 text-xs transition-colors">Admin</Link>
+          <p className="text-gray-600">© {year} {company.name} {company.tagline}. {t('footer.rights')}</p>
+          <Link to="/login" className="text-gray-700 hover:text-gray-500 text-xs transition-colors">Admin</Link>
         </div>
       </div>
     </footer>

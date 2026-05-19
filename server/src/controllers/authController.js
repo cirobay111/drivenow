@@ -46,4 +46,33 @@ const getMe = (req, res) => {
   res.json({ success: true, data: safe, error: null });
 };
 
-module.exports = { login, getMe };
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ success: false, error: 'Current and new password are required' });
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ success: false, error: 'New password must be at least 6 characters' });
+  }
+
+  try {
+    const user = db.findById('users', req.user.id);
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, error: 'Current password is incorrect' });
+    }
+
+    const hashed = bcrypt.hashSync(newPassword, 10);
+    db.update('users', user.id, { password: hashed });
+
+    res.json({ success: true, data: { message: 'Password updated' }, error: null });
+  } catch (err) {
+    console.error('Change password error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+module.exports = { login, getMe, changePassword };

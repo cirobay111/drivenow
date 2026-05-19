@@ -20,6 +20,10 @@ const createBooking = (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid date range' });
     }
 
+    if (db.checkDateConflict(car_id, pickup_date, return_date)) {
+      return res.status(400).json({ success: false, error: 'Car is already booked for these dates' });
+    }
+
     const total_price = parseFloat((car.price_per_day * days).toFixed(2));
     const booking = db.insert('bookings', { car_id: parseInt(car_id), customer_name, customer_email, customer_phone, pickup_location, pickup_date, return_date, total_price, status: 'pending' });
 

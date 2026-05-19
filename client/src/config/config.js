@@ -1,58 +1,45 @@
 // ============================================================
-// ✏️  STEP 1 — Edit this file for every new client
-// ============================================================
-// This is the ONLY place you need to change company info.
-// Every page (navbar, footer, contact, booking) reads from here.
+// Edit this file to customize for each client
 // ============================================================
 
 const config = {
   company: {
-    // Shown in the navbar and footer logo area
     name: 'Kat Car Marrakech',
     tagline: 'Car Rental',
-    // Shown in the footer description
-    description: 'Your premium car rental service. Affordable rates, full insurance, and 24/7 support.',
+    description: 'Your premium car rental service in Marrakech. Affordable rates, full insurance, and 24/7 support.',
     foundedYear: '2020',
-    // Place the client logo at /public/logo.png
     logo: '/logo.png',
   },
 
   contact: {
-    phone: '+1 000 000 0000',
-    email: 'info@yourcompany.com',
-    supportEmail: 'support@yourcompany.com',
-    address: 'Your City, Your Country',
-    // Digits only — used for the wa.me WhatsApp link in the footer
-    // Example: '212600000000'  →  Leave empty '' to hide the WhatsApp button
-    whatsapp: '',
+    phone: '+212 600 000 000',
+    email: 'contact@katcar.ma',
+    supportEmail: 'support@katcar.ma',
+    address: 'Marrakech, Morocco',
+    // Digits only — used for the wa.me WhatsApp link
+    // Leave empty '' to hide the WhatsApp button
+    whatsapp: '212600000000',
     hours: {
-      weekdays: 'Mon – Fri: 8AM – 8PM',
-      weekends: 'Sat – Sun: 9AM – 6PM',
+      weekdays: 'Lun – Ven: 8h – 20h',
+      weekends: 'Sam – Dim: 9h – 18h',
     },
   },
 
   social: {
-    // Leave empty '' to hide the link
     instagram: '',
     facebook: '',
     twitter: '',
   },
 
-  // Google Maps embed URL
-  // How to get yours: Google Maps → your location → Share → Embed a map → copy src="..."
   maps: {
-    embedUrl: '',
+    embedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d108703.20808815285!2d-8.07363!3d31.6295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xdafee8d96179e51%3A0x5950b6534f87adb8!2sMarrakech!5e0!3m2!1sfr!2sma!4v1',
   },
 
-  // Currency symbol shown next to all prices
-  // Examples: '$'  '€'  'MAD '  '£'
-  currency: '$',
+  currency: 'MAD ',
 
-  // ── Admin credentials — CHANGE BEFORE DEPLOYMENT ──────────────────────────
-  // These are used to log in to /admin/login
-  // Never commit real passwords to version control
+  // Admin credentials — shown as placeholder on login page
   admin: {
-    email: 'admin@yourcompany.com',
+    email: 'admin@drivenow.com',
     password: 'Admin@123',
   },
 };

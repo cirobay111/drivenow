@@ -36,3 +36,6 @@ Thumbs.db
 # Cache
 .cache/
 .parcel-cache/
+
+# Client data — each deployment generates its own on first run
+server/data.json

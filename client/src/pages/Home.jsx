@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import SearchBar from '../components/SearchBar';
 import CarCard from '../components/CarCard';
 import config from '../config/config';
+import { useLanguage } from '../context/LanguageContext';
 import content from '../data/content.json';
 import { useCars } from '../hooks';
 import { DollarSign, MessageSquare, MapPin, Clock, Phone, Mail, Shield, Zap } from 'lucide-react';
@@ -16,10 +17,12 @@ const getIcon = (iconName) => {
   return IconComponent ? <IconComponent className="w-8 h-8" /> : null;
 };
 
-const INITIAL_COUNT = 3;
+const INITIAL_COUNT = 6;
+const CATEGORY_ORDER = ['Économique', 'Berline', 'Classique', 'SUV', 'Sport', 'Supercar', 'Prestige'];
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useLanguage();
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [showAll, setShowAll] = useState(false);
   const { cars: allCars, isLoading: isLoadingCars } = useCars();
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
@@ -27,18 +30,17 @@ export default function Home() {
 
   const { hero, fleet, benefits, testimonials, contact: contactContent } = content;
 
-  // Filter only available cars; apply search if the user typed in the SearchBar
+  const availableCategories = useMemo(
+    () => CATEGORY_ORDER.filter(c => allCars.some(car => car.available && car.category === c)),
+    [allCars]
+  );
+
+  // Filter available cars by selected category
   const cars = useMemo(() => {
-    const available = allCars.filter(c => c.available);
-    if (!searchQuery.trim()) return available;
-    const q = searchQuery.toLowerCase();
-    return available.filter(c =>
-      c.brand.toLowerCase().includes(q) ||
-      c.model.toLowerCase().includes(q) ||
-      c.fuel_type.toLowerCase().includes(q) ||
-      c.transmission.toLowerCase().includes(q)
-    );
-  }, [searchQuery, allCars]);
+    let result = allCars.filter(c => c.available);
+    if (selectedCategory) result = result.filter(c => c.category === selectedCategory);
+    return result;
+  }, [selectedCategory, allCars]);
 
   const visibleCars = showAll ? cars : cars.slice(0, INITIAL_COUNT);
 
@@ -77,21 +79,21 @@ export default function Home() {
 
               <div className="flex flex-wrap gap-3 sm:gap-4 justify-center lg:justify-start mb-10">
                 <a href="#cars" className="btn-primary px-8 sm:px-10 py-3.5 text-sm sm:text-base">
-                  Explore Fleet
+                  {t('hero.explore')}
                 </a>
                 <a href="#contact" className="btn-outline px-8 sm:px-10 py-3.5 text-sm sm:text-base bg-black/20 backdrop-blur-sm">
-                  Talk to an Expert
+                  {t('hero.talkExpert')}
                 </a>
               </div>
 
               <div className="px-0 sm:px-1 lg:pr-8">
-                <SearchBar onSearch={setSearchQuery} />
+                <SearchBar />
               </div>
             </div>
 
             <div className="lg:col-span-5">
               <div className="rounded-3xl border border-white/15 bg-white/8 backdrop-blur-xl p-6 sm:p-7 shadow-[0_30px_80px_rgba(0,0,0,0.5)]">
-                <p className="text-xs tracking-[0.22em] uppercase text-gray-300 font-semibold mb-6">Performance Snapshot</p>
+                <p className="text-xs tracking-[0.22em] uppercase text-gray-300 font-semibold mb-6">{t('hero.snapshot')}</p>
                 <div className="grid grid-cols-2 gap-4 sm:gap-5">
                   {hero.stats.map(({ value, label }) => (
                     <div key={label} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-5 text-center">
@@ -101,7 +103,7 @@ export default function Home() {
                   ))}
                 </div>
                 <div className="mt-6 pt-6 border-t border-white/10 text-sm text-gray-300 leading-relaxed">
-                  Premium vehicles, instant confirmations, and support that stays available from pickup to return.
+                  {t('hero.snapshotDesc')}
                 </div>
               </div>
             </div>
@@ -118,14 +120,41 @@ export default function Home() {
             <p className="text-gray-500 mt-3 max-w-xl mx-auto">{fleet.subtitle}</p>
           </div>
 
+          {/* Category filter chips */}
+          {availableCategories.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-2 mb-10">
+              <button
+                onClick={() => { setSelectedCategory(''); setShowAll(false); }}
+                className={`text-sm px-5 py-2 rounded-full border font-medium transition-all duration-150
+                  ${!selectedCategory
+                    ? 'bg-accent text-black border-accent'
+                    : 'border-[#2A2A2A] text-gray-500 hover:border-accent hover:text-accent'}`}
+              >
+                {t('fleet.all')}
+              </button>
+              {availableCategories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => { setSelectedCategory(cat); setShowAll(false); }}
+                  className={`text-sm px-5 py-2 rounded-full border font-medium transition-all duration-150
+                    ${selectedCategory === cat
+                      ? 'bg-accent text-black border-accent'
+                      : 'border-[#2A2A2A] text-gray-500 hover:border-accent hover:text-accent'}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+
           {cars.length === 0 ? (
             <div className="text-center py-16 text-gray-600">
               <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12M8 12h12m-12 5h12M3 7l1.293-1.293a1 1 0 011.414 0L9 7m0 0l1.293-1.293a1 1 0 011.414 0L15 7" />
               </svg>
-              <p className="text-lg font-medium text-gray-400">No cars match your search</p>
-              <button onClick={() => setSearchQuery('')} className="btn-outline mt-4 text-sm">
-                Clear Search
+              <p className="text-lg font-medium text-gray-400">{t('fleet.noCars')}</p>
+              <button onClick={() => setSelectedCategory('')} className="btn-outline mt-4 text-sm">
+                {t('fleet.showAll')}
               </button>
             </div>
           ) : (
@@ -136,7 +165,7 @@ export default function Home() {
               {cars.length > INITIAL_COUNT && (
                 <div className="text-center mt-10">
                   <button onClick={() => setShowAll(p => !p)} className="btn-outline px-10 py-3">
-                    {showAll ? 'Show Less' : `Show All (${cars.length - INITIAL_COUNT} more)`}
+                    {showAll ? t('fleet.showLess') : `${t('fleet.showMore')} (${cars.length - INITIAL_COUNT} ${t('fleet.more')})`}
                   </button>
                 </div>
               )}

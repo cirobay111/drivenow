@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -8,9 +9,11 @@ import CarDetail from './pages/CarDetail';
 import Booking from './pages/Booking';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
+import WhatsAppButton from './components/WhatsAppButton';
 import Dashboard from './pages/admin/Dashboard';
 import ManageCars from './pages/admin/ManageCars';
 import ManageBookings from './pages/admin/ManageBookings';
+import Settings from './pages/admin/Settings';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -24,6 +27,7 @@ const PublicLayout = ({ children }) => (
     <Navbar />
     <main className="flex-1">{children}</main>
     <Footer />
+    <WhatsAppButton />
   </div>
 );
 
@@ -42,6 +46,7 @@ function AnimatedRoutes() {
         <Route path="/admin" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/admin/cars" element={<ProtectedRoute><ManageCars /></ProtectedRoute>} />
         <Route path="/admin/bookings" element={<ProtectedRoute><ManageBookings /></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
@@ -51,9 +56,11 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AuthProvider>
-        <AnimatedRoutes />
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <AnimatedRoutes />
+        </AuthProvider>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

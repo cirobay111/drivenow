@@ -6,16 +6,19 @@ import { useCars } from '../hooks';
 export default function Cars() {
   const { cars: allCars, isLoading } = useCars();
   const [filters, setFilters] = useState({
-    brand: '', fuel_type: '', transmission: '', seats: '', min_price: '', max_price: '',
+    category: '', brand: '', fuel_type: '', transmission: '', seats: '', min_price: '', max_price: '',
   });
 
-  const brands        = useMemo(() => [...new Set(allCars.map(c => c.brand))].sort(), [allCars]);
-  const fuelTypes     = useMemo(() => [...new Set(allCars.map(c => c.fuel_type))].sort(), [allCars]);
-  const transmissions = useMemo(() => [...new Set(allCars.map(c => c.transmission))].sort(), [allCars]);
-  const seatOptions   = useMemo(() => [...new Set(allCars.map(c => c.seats))].sort((a, b) => a - b), [allCars]);
+  const CATEGORY_ORDER = ['Économique', 'Berline', 'Classique', 'SUV', 'Sport', 'Supercar', 'Prestige'];
+  const categories     = useMemo(() => CATEGORY_ORDER.filter(c => allCars.some(car => car.category === c)), [allCars]);
+  const brands         = useMemo(() => [...new Set(allCars.map(c => c.brand))].sort(), [allCars]);
+  const fuelTypes      = useMemo(() => [...new Set(allCars.map(c => c.fuel_type))].sort(), [allCars]);
+  const transmissions  = useMemo(() => [...new Set(allCars.map(c => c.transmission))].sort(), [allCars]);
+  const seatOptions    = useMemo(() => [...new Set(allCars.map(c => c.seats))].sort((a, b) => a - b), [allCars]);
 
   const cars = useMemo(() => {
     return allCars.filter(car => {
+      if (filters.category     && car.category     !== filters.category)                  return false;
       if (filters.brand        && car.brand        !== filters.brand)                     return false;
       if (filters.fuel_type    && car.fuel_type    !== filters.fuel_type)                 return false;
       if (filters.transmission && car.transmission !== filters.transmission)              return false;
@@ -24,13 +27,13 @@ export default function Cars() {
       if (filters.max_price    && car.price_per_day > Number(filters.max_price))          return false;
       return true;
     });
-  }, [filters]);
+  }, [allCars, filters]);
 
   const handleFilter = (key, value) =>
     setFilters(p => ({ ...p, [key]: p[key] === value ? '' : value }));
 
   const handleReset = () =>
-    setFilters({ brand: '', fuel_type: '', transmission: '', seats: '', min_price: '', max_price: '' });
+    setFilters({ category: '', brand: '', fuel_type: '', transmission: '', seats: '', min_price: '', max_price: '' });
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
@@ -64,8 +67,15 @@ export default function Cars() {
                 )}
               </div>
 
+              {/* Gamme — auto-generated from car categories */}
+              <FilterGroup title="Gamme">
+                {categories.map(c => (
+                  <FilterChip key={c} label={c} active={filters.category === c} onClick={() => handleFilter('category', c)} />
+                ))}
+              </FilterGroup>
+
               {/* Brand — auto-generated from cars.json */}
-              <FilterGroup title="Brand">
+              <FilterGroup title="Marque">
                 {brands.map(b => (
                   <FilterChip key={b} label={b} active={filters.brand === b} onClick={() => handleFilter('brand', b)} />
                 ))}
