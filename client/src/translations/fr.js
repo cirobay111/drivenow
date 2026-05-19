@@ -97,7 +97,9 @@ const fr = {
     browseMore: 'Voir Plus de Voitures',
     returnDateError: 'La date de retour doit être après la date de départ.',
     carNotFound: 'Voiture non trouvée.',
-    notifyOwner: 'Confirmer par WhatsApp',
+    notifyOwner: 'Notifier le propriétaire via WhatsApp',
+    requestSent: 'Demande Envoyée !',
+    requestDesc: 'Votre demande est en attente de confirmation par notre équipe.',
     downloadReceipt: 'Télécharger le Reçu',
   },
 

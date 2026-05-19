@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import content from '../data/content.json';
 import { useCars } from '../hooks';
 import { bookingService } from '../services/api';
-import { CheckCircle, Check, Download } from 'lucide-react';
+import { CheckCircle, Check } from 'lucide-react';
 
 export default function Booking() {
   const { id } = useParams();
@@ -77,66 +77,19 @@ export default function Booking() {
     );
   }
 
+  // WhatsApp alert to owner — sent by customer after submitting request
   const waNotifyUrl = config.contact.whatsapp
     ? `https://wa.me/${config.contact.whatsapp}?text=${encodeURIComponent(
-        `Bonjour, je viens de réserver :\n` +
+        `Nouvelle demande de réservation :\n` +
         `🚗 ${car?.brand} ${car?.model}\n` +
         `📅 Du ${form.pickup_date} au ${form.return_date}\n` +
         `📍 ${form.pickup_location}\n` +
-        `👤 ${form.customer_name} — ${form.customer_phone}\n` +
-        `💰 Total: ${currency}${totalPrice}`
+        `👤 ${form.customer_name}\n` +
+        `📞 ${form.customer_phone}\n` +
+        `✉️ ${form.customer_email}\n` +
+        `💰 Total estimé: ${currency}${totalPrice}`
       )}`
     : null;
-
-  const handleDownloadReceipt = () => {
-    const html = `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Receipt - ${car.brand} ${car.model}</title>
-<style>
-  body{font-family:system-ui,-apple-system,sans-serif;padding:40px;color:#222;max-width:520px;margin:0 auto}
-  h1{font-size:22px;margin:0 0 4px}
-  .sub{color:#888;font-size:13px;margin-bottom:24px}
-  .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:14px}
-  .row .label{color:#666}
-  .row .val{font-weight:600;text-align:right}
-  .total{font-size:22px;color:#C9A441;font-weight:700}
-  .footer{margin-top:32px;text-align:center;color:#aaa;font-size:11px}
-  .badge{background:#C9A441;color:#000;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:16px}
-  .header{text-align:center;margin-bottom:28px}
-  .divider{border:none;border-top:2px solid #C9A441;margin:8px 0}
-  @media print{body{padding:20px}}
-</style></head><body>
-  <div class="header">
-    <span class="badge">${t('booking.confirmed')}</span>
-    <h1>${config.company.name}</h1>
-    <p class="sub">${config.company.tagline}</p>
-  </div>
-  <div class="row"><span class="label">${t('booking.fullName')}</span><span class="val">${form.customer_name}</span></div>
-  <div class="row"><span class="label">${t('booking.email')}</span><span class="val">${form.customer_email}</span></div>
-  <div class="row"><span class="label">${t('booking.phone')}</span><span class="val">${form.customer_phone}</span></div>
-  <div class="row"><span class="label">Car</span><span class="val">${car.brand} ${car.model} (${car.year})</span></div>
-  <div class="row"><span class="label">${t('booking.pickupLocation')}</span><span class="val">${form.pickup_location}</span></div>
-  <div class="row"><span class="label">${t('booking.pickupDate')}</span><span class="val">${form.pickup_date}</span></div>
-  <div class="row"><span class="label">${t('booking.returnDate')}</span><span class="val">${form.return_date}</span></div>
-  <div class="row"><span class="label">${t('booking.duration')}</span><span class="val">${totalDays} ${totalDays > 1 ? t('car.days') : t('car.day')}</span></div>
-  <div class="row"><span class="label">${t('booking.pricePerDay')}</span><span class="val">${currency}${car.price_per_day}</span></div>
-  <hr class="divider">
-  <div class="row"><span class="label" style="font-weight:700;font-size:16px">${t('booking.total')}</span><span class="total">${currency}${totalPrice}</span></div>
-  <div class="footer">
-    <p>${config.contact.phone} &middot; ${config.contact.email}</p>
-    <p>${config.contact.address}</p>
-  </div>
-</body></html>`;
-
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `receipt-${car.brand}-${car.model}-${form.pickup_date}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   if (success) return (
     <div className="min-h-screen flex items-center justify-center bg-[#0D0D0D] p-4">
@@ -144,8 +97,9 @@ export default function Booking() {
         <div className="w-20 h-20 bg-accent/20 border border-accent/40 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-10 h-10 text-accent" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">{t('booking.confirmed')}</h2>
-        <p className="text-gray-500 mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">{t('booking.requestSent')}</h2>
+        <p className="text-gray-400 mb-2">{t('booking.requestDesc')}</p>
+        <p className="text-gray-500 text-sm mb-6">
           {t('booking.contactSoon')} <strong className="text-gray-300">{form.customer_email}</strong>
         </p>
         <div className="bg-[#0D0D0D] border border-[#2A2A2A] rounded-xl p-4 text-left text-sm space-y-2 mb-6">
@@ -156,7 +110,6 @@ export default function Booking() {
         </div>
 
         <div className="space-y-3">
-          {/* WhatsApp notification to owner */}
           {waNotifyUrl && (
             <a href={waNotifyUrl} target="_blank" rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1ebe5d] text-white font-semibold py-3 rounded-xl transition-colors text-sm">
@@ -166,13 +119,6 @@ export default function Booking() {
               {t('booking.notifyOwner')}
             </a>
           )}
-
-          {/* Download receipt */}
-          <button onClick={handleDownloadReceipt}
-            className="flex items-center justify-center gap-2 w-full btn-outline py-3 text-sm">
-            <Download className="w-4 h-4" /> {t('booking.downloadReceipt')}
-          </button>
-
           <Link to="/cars" className="btn-primary block py-3">{t('booking.browseMore')}</Link>
         </div>
       </div>

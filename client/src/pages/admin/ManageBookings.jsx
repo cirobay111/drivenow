@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import config from '../../config/config';
 import { bookingService } from '../../services/api';
-import { Search, FileText, Trash2, Calendar } from 'lucide-react';
+import { Search, FileText, Trash2, Calendar, Download } from 'lucide-react';
 
 const STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
 
@@ -68,6 +68,57 @@ export default function ManageBookings() {
     } catch {
       alert('Delete failed.');
     }
+  };
+
+  const downloadReceipt = (r) => {
+    const days = Math.ceil((new Date(r.return_date) - new Date(r.pickup_date)) / 86400000);
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Receipt #${r.id} - ${r.brand} ${r.model}</title>
+<style>
+  body{font-family:system-ui,-apple-system,sans-serif;padding:40px;color:#222;max-width:520px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:#888;font-size:13px;margin-bottom:24px}
+  .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:14px}
+  .row .label{color:#666}
+  .row .val{font-weight:600;text-align:right}
+  .total{font-size:22px;color:#C9A441;font-weight:700}
+  .footer{margin-top:32px;text-align:center;color:#aaa;font-size:11px}
+  .badge{background:#22c55e;color:#fff;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:16px}
+  .header{text-align:center;margin-bottom:28px}
+  .divider{border:none;border-top:2px solid #C9A441;margin:8px 0}
+  @media print{body{padding:20px}}
+</style></head><body>
+  <div class="header">
+    <span class="badge">✓ Confirmed</span>
+    <h1>${config.company.name}</h1>
+    <p class="sub">${config.company.tagline} · Receipt #${r.id}</p>
+  </div>
+  <div class="row"><span class="label">Client</span><span class="val">${r.customer_name}</span></div>
+  <div class="row"><span class="label">Email</span><span class="val">${r.customer_email}</span></div>
+  <div class="row"><span class="label">Phone</span><span class="val">${r.customer_phone}</span></div>
+  <div class="row"><span class="label">Car</span><span class="val">${r.brand} ${r.model}</span></div>
+  <div class="row"><span class="label">Pickup location</span><span class="val">${r.pickup_location}</span></div>
+  <div class="row"><span class="label">Pickup date</span><span class="val">${r.pickup_date}</span></div>
+  <div class="row"><span class="label">Return date</span><span class="val">${r.return_date}</span></div>
+  <div class="row"><span class="label">Duration</span><span class="val">${days} day${days !== 1 ? 's' : ''}</span></div>
+  <div class="row"><span class="label">Price / day</span><span class="val">${currency}${parseFloat(r.total_price / days).toFixed(2)}</span></div>
+  <hr class="divider">
+  <div class="row"><span class="label" style="font-weight:700;font-size:16px">Total</span><span class="total">${currency}${parseFloat(r.total_price).toFixed(2)}</span></div>
+  <div class="footer">
+    <p>${config.contact.phone} · ${config.contact.email}</p>
+    <p>${config.contact.address}</p>
+  </div>
+</body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `receipt-${r.brand}-${r.model}-${r.pickup_date}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -179,6 +230,9 @@ export default function ManageBookings() {
                           >
                             {STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                           </select>
+                          {['confirmed', 'completed'].includes(r.status) && (
+                            <button onClick={() => downloadReceipt(r)} className="text-gray-600 hover:text-accent transition-colors p-1 rounded" title="Download receipt"><Download className="w-4 h-4" /></button>
+                          )}
                           <button onClick={() => setConfirmDelete(r.id)} className="text-gray-600 hover:text-red-400 transition-colors p-1 rounded" title="Delete booking"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </td>

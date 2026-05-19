@@ -97,7 +97,9 @@ const en = {
     browseMore: 'Browse More Cars',
     returnDateError: 'Return date must be after pickup date.',
     carNotFound: 'Car not found.',
-    notifyOwner: 'Confirm via WhatsApp',
+    notifyOwner: 'Notify owner via WhatsApp',
+    requestSent: 'Request Sent!',
+    requestDesc: 'Your request is pending confirmation from our team.',
     downloadReceipt: 'Download Receipt',
   },
 
